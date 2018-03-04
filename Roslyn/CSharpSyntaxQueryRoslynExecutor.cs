@@ -12,6 +12,7 @@ namespace Lastql.Roslyn {
 
     public class CSharpSyntaxQueryRoslynExecutor {
         private static readonly IReadOnlyDictionary<SyntaxQueryKeyword, HashSet<SyntaxKind>> SyntaxKindsByTarget = new Dictionary<SyntaxQueryKeyword, HashSet<SyntaxKind>> {
+            // Language
             { Abstract, HashSet(AbstractKeyword) },
             { Add, HashSet(AddAccessorDeclaration, AddKeyword) },
             { Alias, HashSet(AliasKeyword) },
@@ -126,7 +127,10 @@ namespace Lastql.Roslyn {
             { When, HashSet(WhenClause, CatchFilterClause, WhenKeyword) },
             { Where, HashSet(WhereClause, WhereKeyword) },
             { While, HashSet(WhileStatement, WhileKeyword) },
-            { Yield, HashSet(YieldReturnStatement, YieldBreakStatement, YieldKeyword) }
+            { Yield, HashSet(YieldReturnStatement, YieldBreakStatement, YieldKeyword) },
+
+            // Extras
+            { Identifier, HashSet(IdentifierName, IdentifierToken) }
         };
 
         private static HashSet<SyntaxKind> HashSet(params SyntaxKind[] kinds) {

@@ -1,5 +1,6 @@
 namespace Lastql.CSharp {
     public enum SyntaxQueryKeyword {
+        // Language
         Abstract,
         Add,
         Alias,
@@ -109,6 +110,9 @@ namespace Lastql.CSharp {
         When,
         Where,
         While,
-        Yield
+        Yield,
+
+        // Extras
+        Identifier
     }
 }

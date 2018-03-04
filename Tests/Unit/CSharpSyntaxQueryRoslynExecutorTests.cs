@@ -106,6 +106,12 @@ namespace Lastql.Tests.Unit {
         }
 
         [Theory]
+        [InlineData("//identifier", "int x = 5;", "x")]
+        public void QueryAll_Expression_SpecialCategory(string query, string code, string expected) {
+            TestQueryAll(new[] { expected }, TestSyntaxFactory.ParseCompilationUnit(code), query);
+        }
+
+        [Theory]
         [InlineData("//case", "switch (x) { case 'A': break; }", new[] { "case 'A': break;" })]
         [InlineData("//case", "switch (x) { default: break; }", new string[0])]
         [InlineData("//default", "switch (x) { default: break; }", new[] { "default: break;" })]
@@ -170,7 +176,7 @@ namespace Lastql.Tests.Unit {
 
         [Theory]
         [InlineData("method", "class X { void M() {} }", "void M() {}")]
-        public void QueryAll_Declaration_SpecialCategories(string query, string code, string expected) {
+        public void QueryAll_Declaration_SpecialCategory(string query, string code, string expected) {
             TestQueryAll(new[] { expected }, TestSyntaxFactory.ParseCompilationUnit(code), query);
         }
 
