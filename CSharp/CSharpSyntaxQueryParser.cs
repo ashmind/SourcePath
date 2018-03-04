@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Sprache;
+using Pidgin;
 
 namespace Lastql.CSharp {
+    using static Parser;
+    using static Parser<char>;
+
     public class CSharpSyntaxQueryParser {
         private static readonly IReadOnlyDictionary<string, CSharpSyntaxQueryTarget> TargetsByKeywords =
             ((CSharpSyntaxQueryTarget[])Enum.GetValues(typeof(CSharpSyntaxQueryTarget))).ToDictionary(
@@ -11,19 +14,23 @@ namespace Lastql.CSharp {
                 v => v
             );
 
-        private static readonly Parser<SyntaxQueryAxis> Axis = Sprache.Parse
-            .String("self::").Select(s => SyntaxQueryAxis.Self)
-            .Or(Sprache.Parse.String("//").Select(s => SyntaxQueryAxis.Descendant))
-            .Or(Sprache.Parse.String("/").Select(s => SyntaxQueryAxis.Child));
-        private static readonly Parser<string> Keyword = Sprache.Parse
-            .Identifier(Sprache.Parse.Letter, Sprache.Parse.Letter);
+        private static readonly Parser<char, SyntaxQueryAxis> Axis = OneOf(
+            Try(String("self::").Select(s => SyntaxQueryAxis.Self)),
+            Try(String("//").Select(s => SyntaxQueryAxis.Descendant)),
+            String("/").Select(s => SyntaxQueryAxis.Child)
+        );
 
-        private static readonly Parser<CSharpSyntaxQuery> Root = Sprache.Parse
-            .Optional(Axis)
-            .Then(a => Keyword.Select(s => new CSharpSyntaxQuery(a.GetOrElse(SyntaxQueryAxis.Child), ParseKeyword(s))));
+        private static readonly Parser<char, CSharpSyntaxQueryTarget> Target =
+            Letter.Labelled("keyword").AtLeastOnceString().Select(ParseKeyword);
+
+        private static readonly Parser<char, CSharpSyntaxQuery> Root = Map(
+            (axis, target) => new CSharpSyntaxQuery(axis.GetValueOrDefault(SyntaxQueryAxis.Child), target),
+            Axis.Optional(),
+            Target
+        ).Before(End());
 
         public CSharpSyntaxQuery Parse(string query) {
-            return Root.Parse(query);
+            return Root.ParseOrThrow(query);
         }
 
         private static CSharpSyntaxQueryTarget ParseKeyword(string keyword) {

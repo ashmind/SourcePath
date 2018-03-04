@@ -7,10 +7,8 @@ using Microsoft.CodeAnalysis.CSharp;
 using Lastql.CSharp;
 using Lastql.Roslyn;
 
-namespace Lastql.Tests {
+namespace Lastql.Tests.Unit {
     public class CSharpSyntaxQueryRoslynExecutorTests {
-        private static readonly CSharpParseOptions ParseOptions = new CSharpParseOptions(LanguageVersion.Latest);
-
         [Theory]
         [InlineData("self::if", "if (true) {}", "if (true) {}")]
         [InlineData("//as", "var x = \"x\" as object;", "\"x\" as object")]
@@ -80,11 +78,7 @@ namespace Lastql.Tests {
         [InlineData("self::yield", "yield return 0;", "yield return 0;")]
         [InlineData("self::yield", "yield break;", "yield break;")]
         public void QueryAll_Statement(string query, string code, string expected) {
-            var results = QueryAll(
-                SyntaxFactory.ParseStatement(code, options: ParseOptions),
-                query
-            );
-            Assert.Equal(new[] { expected }, results.Select(r => r.ToString()).ToArray());
+            TestQueryAll(new[] { expected }, TestSyntaxFactory.ParseStatement(code), query);
         }
 
         [Theory]
@@ -104,11 +98,11 @@ namespace Lastql.Tests {
         [InlineData("ulong")]
         [InlineData("ushort")]
         public void QueryAll_PrimitiveType(string type) {
-            var results = QueryAll(
-                SyntaxFactory.ParseStatement($"{type} x;", options: ParseOptions),
+            TestQueryAll(
+                new[] { type },
+                TestSyntaxFactory.ParseStatement($"{type} x;"),
                 $"//{type}"
             );
-            Assert.Equal(new[] { type }, results.Select(r => r.ToString()).ToArray());
         }
 
         [Theory]
@@ -117,11 +111,7 @@ namespace Lastql.Tests {
         [InlineData("//default", "switch (x) { default: break; }", new[] { "default: break;" })]
         [InlineData("//default", "switch (x) { case 'A': break; }", new string[0])]
         public void QueryAll_SwitchSection(string query, string code, string[] expected) {
-            var results = QueryAll(
-                SyntaxFactory.ParseStatement(code, options: ParseOptions),
-                query
-            );
-            Assert.Equal(expected, results.Select(r => r.ToString()).ToArray());
+            TestQueryAll(expected, TestSyntaxFactory.ParseStatement(code), query);
         }
         
         [Theory]
@@ -175,19 +165,12 @@ namespace Lastql.Tests {
         [InlineData("//void", "class X { void M() {} }", "void")]
         [InlineData("//volatile", "class X { volatile int f; }", "volatile")]
         public void QueryAll_Declaration(string query, string code, string expected) {
-            var results = QueryAll(
-                SyntaxFactory.ParseCompilationUnit(code, options: ParseOptions),
-                query
-            );
-            Assert.Equal(new[] { expected }, results.Select(r => r.ToString()).ToArray());
+            TestQueryAll(new[] { expected }, TestSyntaxFactory.ParseCompilationUnit(code), query);
         }
 
-        private static IEnumerable<SyntaxNodeOrToken> QueryAll(CSharpSyntaxNode current, string queryAsString) {
-            var errors = current.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error);
-            if (errors.Any())
-                throw new Exception($"Failed to compile code:\r\n{string.Join("\r\n", errors)}.");
-
-            return new CSharpSyntaxQueryRoslynExecutor().QueryAll(current, ParseQuery(queryAsString));
+        private static void TestQueryAll(string[] expected, CSharpSyntaxNode current, string queryAsString) {
+            var results = new CSharpSyntaxQueryRoslynExecutor().QueryAll(current, ParseQuery(queryAsString));
+            Assert.Equal(expected, results.Select(r => r.ToString()).ToArray());
         }
 
         private static CSharpSyntaxQuery ParseQuery(string queryAsString) {

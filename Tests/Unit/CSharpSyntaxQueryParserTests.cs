@@ -11,7 +11,7 @@ using AshMind.Extensions;
 using Xunit;
 using Lastql.CSharp;
 
-namespace Lastql.Tests {
+namespace Lastql.Tests.Unit {
     public class CSharpSyntaxQueryParserTests {
         [Theory]
         [InlineData("if", CSharpSyntaxQueryTarget.If)]
