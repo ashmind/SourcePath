@@ -1,9 +1,9 @@
 using System.Linq;
-using Lastql.CSharp;
-using Lastql.Roslyn;
+using SourcePath.CSharp;
+using SourcePath.Roslyn;
 using Xunit;
 
-namespace Lastql.Tests {
+namespace SourcePath.Tests {
     public class UseCases {
         [Theory]
         [InlineData("class C { async void M() {} }", "async void M() {}")]

@@ -4,10 +4,10 @@ using System.Linq;
 using Xunit;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Lastql.CSharp;
-using Lastql.Roslyn;
+using SourcePath.CSharp;
+using SourcePath.Roslyn;
 
-namespace Lastql.Tests.Unit {
+namespace SourcePath.Tests.Unit {
     public class CSharpSyntaxQueryRoslynExecutorTests {
         [Theory]
         [InlineData("//as", "var x = \"x\" as object;", "\"x\" as object")]

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Pidgin;
 
-namespace Lastql.CSharp {
+namespace SourcePath.CSharp {
     using Pidgin.Expression;
     using static Parser;
     using static Parser<char>;

@@ -1,4 +1,4 @@
-namespace Lastql.CSharp {
+namespace SourcePath.CSharp {
     public enum SyntaxQueryKeyword {
         // Language
         Abstract,

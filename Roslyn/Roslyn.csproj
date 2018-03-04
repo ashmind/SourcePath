@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>Lastql.Roslyn</AssemblyName>
-    <RootNamespace>Lastql.Roslyn</RootNamespace>
+    <AssemblyName>SourcePath.Roslyn</AssemblyName>
+    <RootNamespace>SourcePath.Roslyn</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.6.1" />

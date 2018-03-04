@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Lastql.CSharp {
+namespace SourcePath.CSharp {
     public interface ISyntaxFilterExpression {
         void AppendToString(StringBuilder builder);
     }

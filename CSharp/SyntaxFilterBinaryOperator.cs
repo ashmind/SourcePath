@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Lastql.CSharp {
+namespace SourcePath.CSharp {
     public enum SyntaxFilterBinaryOperator {
         And
     }

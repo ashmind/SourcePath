@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 
-namespace Lastql.CSharp {
+namespace SourcePath.CSharp {
     public class SyntaxFilterBinaryExpression : ISyntaxFilterExpression {
         public SyntaxFilterBinaryExpression(ISyntaxFilterExpression left, SyntaxFilterBinaryOperator @operator, ISyntaxFilterExpression right) {
             Left = left;

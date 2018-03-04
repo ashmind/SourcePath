@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>Lastql.CSharp</AssemblyName>
-    <RootNamespace>Lastql.CSharp</RootNamespace>
+    <AssemblyName>SourcePath.CSharp</AssemblyName>
+    <RootNamespace>SourcePath.CSharp</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Pidgin" Version="1.4.1" />

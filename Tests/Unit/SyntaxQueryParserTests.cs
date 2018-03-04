@@ -9,9 +9,9 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using AshMind.Extensions;
 using Xunit;
-using Lastql.CSharp;
+using SourcePath.CSharp;
 
-namespace Lastql.Tests.Unit {
+namespace SourcePath.Tests.Unit {
     public class SyntaxQueryParserTests {
         [Theory]
         [InlineData("if", SyntaxQueryKeyword.If)]

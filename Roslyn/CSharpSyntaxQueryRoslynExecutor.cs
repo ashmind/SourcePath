@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lastql.CSharp;
+using SourcePath.CSharp;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Lastql.Roslyn {
+namespace SourcePath.Roslyn {
     using static SyntaxQueryKeyword;
     using static SyntaxKind;
 

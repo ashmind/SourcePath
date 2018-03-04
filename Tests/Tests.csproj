@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <AssemblyName>Lastql.Tests</AssemblyName>
-    <RootNamespace>Lastql.Tests</RootNamespace>
+    <AssemblyName>SourcePath.Tests</AssemblyName>
+    <RootNamespace>SourcePath.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

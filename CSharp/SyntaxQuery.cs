@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 
-namespace Lastql.CSharp {
+namespace SourcePath.CSharp {
     public class SyntaxQuery : ISyntaxFilterExpression {
         public SyntaxQuery(SyntaxQueryAxis axis, SyntaxQueryKeyword keyword, ISyntaxFilterExpression filter) {
             Axis = axis;
