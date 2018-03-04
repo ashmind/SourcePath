@@ -5,18 +5,19 @@ using System.Net.Http;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using AshMind.Extensions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using AshMind.Extensions;
 using Xunit;
+using Lastql.CSharp;
 
-namespace Lastql.CSharp.Tests {
+namespace Lastql.Tests {
     public class CSharpSyntaxQueryParserTests {
         [Theory]
-        [InlineData("if", new[] { SyntaxKind.IfStatement })]
-        public void Parse_Basic(string queryAsString, SyntaxKind[] expectedKinds) {
+        [InlineData("if", CSharpSyntaxQueryTarget.If)]
+        public void Parse_Basic(string queryAsString, CSharpSyntaxQueryTarget expectedTarget) {
             var query = new CSharpSyntaxQueryParser().Parse(queryAsString);
-            Assert.Equal(expectedKinds, query.SyntaxKinds.ToArray());
+            Assert.Equal(expectedTarget, query.Target);
         }
 
         [Theory]

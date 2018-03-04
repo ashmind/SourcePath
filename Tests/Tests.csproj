@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <AssemblyName>Lastql.CSharp.Tests</AssemblyName>
-    <RootNamespace>Lastql.CSharp.Tests</RootNamespace>
+    <AssemblyName>Lastql.Tests</AssemblyName>
+    <RootNamespace>Lastql.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CSharp\CSharp.csproj" />
+    <ProjectReference Include="..\Roslyn\Roslyn.csproj" />
   </ItemGroup>
 
 </Project>

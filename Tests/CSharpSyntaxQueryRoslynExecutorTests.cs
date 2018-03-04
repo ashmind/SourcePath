@@ -4,8 +4,10 @@ using System.Linq;
 using Xunit;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Lastql.CSharp;
+using Lastql.Roslyn;
 
-namespace Lastql.CSharp.Tests {
+namespace Lastql.Tests {
     public class CSharpSyntaxQueryRoslynExecutorTests {
         private static readonly CSharpParseOptions ParseOptions = new CSharpParseOptions(LanguageVersion.Latest);
 
