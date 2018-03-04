@@ -10,7 +10,6 @@ using Lastql.Roslyn;
 namespace Lastql.Tests.Unit {
     public class CSharpSyntaxQueryRoslynExecutorTests {
         [Theory]
-        [InlineData("self::if", "if (true) {}", "if (true) {}")]
         [InlineData("//as", "var x = \"x\" as object;", "\"x\" as object")]
         [InlineData("//ascending", "var y = from x in xs orderby x.X ascending select x;", "ascending")]
         [InlineData("self::await", "await M();", "await M();")]
@@ -41,6 +40,7 @@ namespace Lastql.Tests.Unit {
         [InlineData("//goto", "switch(x) { case 1: goto case 1; }", "goto case 1;")]
         [InlineData("//goto", "switch(x) { default: goto default; }", "goto default;")]
         [InlineData("//group", "var y = from x in xs group x by x.X;", "group x by x.X")]
+        [InlineData("self::if", "if (true) {}", "if (true) {}")]
         [InlineData("//in", "foreach (var x in xs) {}", "in")]
         [InlineData("//into", "var y = from x in xs group x by x into g select g;", "into")]
         [InlineData("//is", "var y = x is Y;", "x is Y")]
@@ -113,7 +113,7 @@ namespace Lastql.Tests.Unit {
         public void QueryAll_SwitchSection(string query, string code, string[] expected) {
             TestQueryAll(expected, TestSyntaxFactory.ParseStatement(code), query);
         }
-        
+
         [Theory]
         [InlineData("abstract", "abstract class X {}", "abstract")]
         [InlineData("//add", "class X { event Action E { add {} remove {} } }", "add {}")]
@@ -134,7 +134,7 @@ namespace Lastql.Tests.Unit {
         [InlineData("//implicit", "class X { public static implicit operator X(string value) { return null; } }", "implicit")]
         [InlineData("self::interface", "interface I {}", "interface I {}")]
         [InlineData("internal", "internal class X {}", "internal")]
-        [InlineData("//method", "class X { [method: A] void M() {} }", "method")]
+        //[InlineData("//method", "class X { [method: A] void M() {} }", "method")]
         [InlineData("//module", "[module: A]", "module")]
         [InlineData("self::namespace", "namespace N {}", "namespace N {}")]
         [InlineData("//operator", "class X { static X operator -(X value) { return null; } }", "static X operator -(X value) { return null; }")]
@@ -168,13 +168,19 @@ namespace Lastql.Tests.Unit {
             TestQueryAll(new[] { expected }, TestSyntaxFactory.ParseCompilationUnit(code), query);
         }
 
+        [Theory]
+        [InlineData("method", "class X { void M() {} }", "void M() {}")]
+        public void QueryAll_Declaration_SpecialCategories(string query, string code, string expected) {
+            TestQueryAll(new[] { expected }, TestSyntaxFactory.ParseCompilationUnit(code), query);
+        }
+
         private static void TestQueryAll(string[] expected, CSharpSyntaxNode current, string queryAsString) {
             var results = new CSharpSyntaxQueryRoslynExecutor().QueryAll(current, ParseQuery(queryAsString));
             Assert.Equal(expected, results.Select(r => r.ToString()).ToArray());
         }
 
-        private static CSharpSyntaxQuery ParseQuery(string queryAsString) {
-            return new CSharpSyntaxQueryParser().Parse(queryAsString);
+        private static SyntaxQuery ParseQuery(string queryAsString) {
+            return new SyntaxQueryParser().Parse(queryAsString);
         }
     }
 }

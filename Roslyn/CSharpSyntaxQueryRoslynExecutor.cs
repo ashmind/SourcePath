@@ -7,11 +7,11 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Lastql.Roslyn {
-    using static CSharpSyntaxQueryTarget;
+    using static SyntaxQueryKeyword;
     using static SyntaxKind;
 
     public class CSharpSyntaxQueryRoslynExecutor {
-        private static readonly IReadOnlyDictionary<CSharpSyntaxQueryTarget, HashSet<SyntaxKind>> SyntaxKindsByTarget = new Dictionary<CSharpSyntaxQueryTarget, HashSet<SyntaxKind>> {
+        private static readonly IReadOnlyDictionary<SyntaxQueryKeyword, HashSet<SyntaxKind>> SyntaxKindsByTarget = new Dictionary<SyntaxQueryKeyword, HashSet<SyntaxKind>> {
             { Abstract, HashSet(AbstractKeyword) },
             { Add, HashSet(AddAccessorDeclaration, AddKeyword) },
             { Alias, HashSet(AliasKeyword) },
@@ -41,7 +41,7 @@ namespace Lastql.Roslyn {
             { Double, HashSet(DoubleKeyword) },
             { Else, HashSet(ElseClause, ElseKeyword) },
             { Enum, HashSet(EnumDeclaration, EnumKeyword) },
-            { CSharpSyntaxQueryTarget.Equals, HashSet(EqualsKeyword) },
+            { SyntaxQueryKeyword.Equals, HashSet(EqualsKeyword) },
             { Event, HashSet(EventDeclaration, EventFieldDeclaration, EventKeyword) },
             { Explicit, HashSet(ExplicitKeyword) },
             { Extern, HashSet(ExternAliasDirective, ExternKeyword) },
@@ -68,7 +68,7 @@ namespace Lastql.Roslyn {
             { Let, HashSet(LetClause, LetKeyword) },
             { Lock, HashSet(LockStatement, LockKeyword) },
             { Long, HashSet(LongKeyword) },
-            { Method, HashSet(MethodKeyword) },
+            { Method, HashSet(MethodDeclaration, MethodKeyword) },
             { Module, HashSet(ModuleKeyword) },
             { NameOf, HashSet(NameOfKeyword) },
             { Namespace, HashSet(NamespaceDeclaration, NamespaceKeyword) },
@@ -133,7 +133,7 @@ namespace Lastql.Roslyn {
             return new HashSet<SyntaxKind>(kinds);
         }
 
-        public IEnumerable<SyntaxNodeOrToken> QueryAll(CSharpSyntaxNode current, CSharpSyntaxQuery query) {
+        public IEnumerable<SyntaxNodeOrToken> QueryAll(CSharpSyntaxNode current, SyntaxQuery query) {
             if (current is CompilationUnitSyntax)
                 return current.ChildNodes().SelectMany(c => QueryAll((CSharpSyntaxNode)c, query));
 
@@ -151,7 +151,7 @@ namespace Lastql.Roslyn {
             }
         }
 
-        private IEnumerable<SyntaxNodeOrToken> QueryAllChildrenOrDescendants(SyntaxNode node, CSharpSyntaxQuery query, bool descendants) {
+        private IEnumerable<SyntaxNodeOrToken> QueryAllChildrenOrDescendants(SyntaxNode node, SyntaxQuery query, bool descendants) {
             foreach (var child in node.ChildNodesAndTokens()) {
                 if (MatchesIgnoringAxis(child, query)) {
                     yield return child;
@@ -166,24 +166,63 @@ namespace Lastql.Roslyn {
             }
         }
 
-        private static bool MatchesIgnoringAxis(SyntaxNodeOrToken nodeOrToken, CSharpSyntaxQuery query) {
+        private bool MatchesIgnoringAxis(SyntaxNodeOrToken nodeOrToken, SyntaxQuery query) {
             var node = nodeOrToken.AsNode();
             if (node is ExpressionStatementSyntax statement && node.Kind() == ExpressionStatement)
                 return MatchesIgnoringAxis(statement.Expression, query);
 
             if (node is SwitchSectionSyntax switchSection) {
                 foreach (var label in switchSection.Labels) {
-                    if (MatchesSyntaxKind(label.Kind(), query))
+                    if (MatchesSyntaxKindAndFilter(switchSection, label.Kind(), query))
                         return true;
                 }
             }
 
-            return MatchesSyntaxKind(nodeOrToken.Kind(), query);
+            if (node is PredefinedTypeSyntax predefinedType)
+                return MatchesSyntaxKindAndFilter(predefinedType, predefinedType.Keyword.Kind(), query);
+
+            return MatchesSyntaxKindAndFilter(nodeOrToken, nodeOrToken.Kind(), query);
         }
 
-        private static bool MatchesSyntaxKind(SyntaxKind kind, CSharpSyntaxQuery query) {
-            if (!SyntaxKindsByTarget.TryGetValue(query.Target, out var kinds))
-                throw new NotSupportedException($"Unsupported query target: {query.Target}.");
+        private bool MatchesSyntaxKindAndFilter(SyntaxNodeOrToken nodeOrToken, SyntaxKind syntaxKind, SyntaxQuery query) {
+            return MatchesSyntaxKind(syntaxKind, query)
+                && MatchesFilter(nodeOrToken, query.Filter);
+        }
+
+        private bool MatchesFilter(SyntaxNodeOrToken nodeOrToken, ISyntaxFilterExpression filter) {
+            if (filter == null)
+                return true;
+            switch (filter) {
+                case SyntaxQuery query: {
+                    var node = nodeOrToken.AsNode();
+                    if (node == null)
+                        return false; // TODO?
+
+                    return QueryAll((CSharpSyntaxNode)node, query).Any();
+                }
+
+                case SyntaxFilterBinaryExpression binary:
+                    return MatchesFilterBinary(nodeOrToken, binary);
+
+                default:
+                    throw new NotSupportedException($"Unknown filter type: {filter.GetType()}.");
+            }
+        }
+
+        private bool MatchesFilterBinary(SyntaxNodeOrToken nodeOrToken, SyntaxFilterBinaryExpression binary) {
+            switch (binary.Operator) {
+                case SyntaxFilterBinaryOperator.And:
+                    return MatchesFilter(nodeOrToken, binary.Left)
+                        && MatchesFilter(nodeOrToken, binary.Right);
+
+                default:
+                    throw new NotSupportedException($"Unknown binary operator: {binary.Operator}.");
+            }
+        }
+
+        private bool MatchesSyntaxKind(SyntaxKind kind, SyntaxQuery query) {
+            if (!SyntaxKindsByTarget.TryGetValue(query.Keyword, out var kinds))
+                throw new NotSupportedException($"Unsupported query keyword: {query.Keyword}.");
             return kinds.Contains(kind);
         }
     }

@@ -12,12 +12,12 @@ using Xunit;
 using Lastql.CSharp;
 
 namespace Lastql.Tests.Unit {
-    public class CSharpSyntaxQueryParserTests {
+    public class SyntaxQueryParserTests {
         [Theory]
-        [InlineData("if", CSharpSyntaxQueryTarget.If)]
-        public void Parse_Basic(string queryAsString, CSharpSyntaxQueryTarget expectedTarget) {
-            var query = new CSharpSyntaxQueryParser().Parse(queryAsString);
-            Assert.Equal(expectedTarget, query.Target);
+        [InlineData("if", SyntaxQueryKeyword.If)]
+        public void Parse_Basic(string queryAsString, SyntaxQueryKeyword expectedTarget) {
+            var query = new SyntaxQueryParser().Parse(queryAsString);
+            Assert.Equal(expectedTarget, query.Keyword);
         }
 
         [Theory]
@@ -26,15 +26,25 @@ namespace Lastql.Tests.Unit {
         [InlineData("//if", SyntaxQueryAxis.Descendant)]
         [InlineData("self::if", SyntaxQueryAxis.Self)]
         public void Parse_Axis(string queryAsString, SyntaxQueryAxis expectedAxis) {
-            var query = new CSharpSyntaxQueryParser().Parse(queryAsString);
+            var query = new SyntaxQueryParser().Parse(queryAsString);
             Assert.Equal(expectedAxis, query.Axis);
+        }
+
+        [Theory]
+        [InlineData("if[if]")]
+        [InlineData("if[if && if]")]
+        [InlineData("if[if && if && if]")]
+        [InlineData("if[if && if[if && if]]")]
+        public void Parse_Filter(string queryAsString) {
+            var query = new SyntaxQueryParser().Parse(queryAsString);
+            Assert.Equal(queryAsString, query.ToString());
         }
 
         [Theory]
         [MemberData(nameof(GetAllKeywords))]
         public void Parse_Keyword(string keyword) {
             // Assert.DoesNotThrow
-            new CSharpSyntaxQueryParser().Parse(keyword);
+            new SyntaxQueryParser().Parse(keyword);
         }
 
         public static IEnumerable<object[]> GetAllKeywords() {

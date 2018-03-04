@@ -1,5 +1,5 @@
 namespace Lastql.CSharp {
-    public enum CSharpSyntaxQueryTarget {
+    public enum SyntaxQueryKeyword {
         Abstract,
         Add,
         Alias,
