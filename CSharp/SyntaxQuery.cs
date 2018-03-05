@@ -23,6 +23,7 @@ namespace SourcePath.CSharp {
             switch (Axis) {
                 case SyntaxQueryAxis.Self: builder.Append("self::"); break;
                 case SyntaxQueryAxis.Descendant: builder.Append("//"); break;
+                case SyntaxQueryAxis.Parent: builder.Append("parent::"); break;
             }
             builder.Append(Keyword.ToString("G").ToLowerInvariant());
             if (Filter != null) {

@@ -4,6 +4,7 @@ using System.Text;
 
 namespace SourcePath.CSharp {
     public enum SyntaxFilterBinaryOperator {
-        And
+        And,
+        Equals
     }
 }

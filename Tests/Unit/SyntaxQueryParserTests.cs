@@ -24,7 +24,9 @@ namespace SourcePath.Tests.Unit {
         [InlineData("if", SyntaxQueryAxis.Child)]
         [InlineData("/if", SyntaxQueryAxis.Child)]
         [InlineData("//if", SyntaxQueryAxis.Descendant)]
+        [InlineData("descendant::if", SyntaxQueryAxis.Descendant)]
         [InlineData("self::if", SyntaxQueryAxis.Self)]
+        [InlineData("parent::if", SyntaxQueryAxis.Parent)]
         public void Parse_Axis(string queryAsString, SyntaxQueryAxis expectedAxis) {
             var query = new SyntaxQueryParser().Parse(queryAsString);
             Assert.Equal(expectedAxis, query.Axis);
@@ -35,6 +37,8 @@ namespace SourcePath.Tests.Unit {
         [InlineData("if[if && if]")]
         [InlineData("if[if && if && if]")]
         [InlineData("if[if && if[if && if]]")]
+        [InlineData("class[name == 'C']")]
+        [InlineData("class[name == 'C' && method[name == 'M']]")]
         public void Parse_Filter(string queryAsString) {
             var query = new SyntaxQueryParser().Parse(queryAsString);
             Assert.Equal(queryAsString, query.ToString());

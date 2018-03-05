@@ -17,6 +17,7 @@ namespace SourcePath.CSharp {
             Left.AppendToString(builder);
             switch (Operator) {
                 case SyntaxFilterBinaryOperator.And: builder.Append(" && "); break;
+                case SyntaxFilterBinaryOperator.Equals: builder.Append(" == "); break;
                 default: throw new NotSupportedException($"Unknown binary operator: {Operator}.");
             }
             Right.AppendToString(builder);

@@ -16,8 +16,17 @@ namespace SourcePath.Tests {
 
         [Theory]
         [InlineData("class C { void M() { try {} catch (Exception ex) { throw ex; } } }", "throw ex;")]
-        public void ThrowEx(string code, string expected) {
-            var query = "//throw[identifier]";
+        [InlineData("class C { void M() { try {} catch { throw; } } }", null)]
+        [InlineData("class C { void M() { throw new Exception(); } }", null)]
+        public void ThrowExInsteadOfThrow(string code, string expected) {
+            var query = "//throw[name]";
+            AssertQueryAll(expected != null ? new[] { expected } : new string[0], code, query);
+        }
+
+        [Theory]
+        [InlineData("namespace Internal { public class C {} }", "public class C {}")]
+        public void PublicClassInInternalNamespace(string code, string expected) {
+            var query = "//class[public && parent::namespace[name == 'Internal']]";
             AssertQueryAll(expected != null ? new[] { expected } : new string[0], code, query);
         }
 

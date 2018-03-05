@@ -103,7 +103,7 @@ namespace SourcePath.Tests.Unit {
         }
 
         [Theory]
-        [InlineData("//identifier", "int x = 5;", "x")]
+        [InlineData("//name", "int x = 5;", "x")]
         public void QueryAll_Expression_SpecialCategory(string query, string code, string expected) {
             TestQueryAll(new[] { expected }, TestSyntaxFactory.ParseCompilationUnit(code), query);
         }

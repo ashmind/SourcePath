@@ -130,7 +130,7 @@ namespace SourcePath.Roslyn {
             { Yield, HashSet(YieldReturnStatement, YieldBreakStatement, YieldKeyword) },
 
             // Extras
-            { Identifier, HashSet(IdentifierName, IdentifierToken) }
+            { Name, HashSet(IdentifierName, IdentifierToken) }
         };
 
         private static HashSet<SyntaxKind> HashSet(params SyntaxKind[] kinds) {
@@ -150,6 +150,10 @@ namespace SourcePath.Roslyn {
                     return QueryAllChildrenOrDescendants(current, query, descendants: false);
                 case SyntaxQueryAxis.Descendant:
                     return QueryAllChildrenOrDescendants(current, query, descendants: true);
+                case SyntaxQueryAxis.Parent:
+                    if (MatchesIgnoringAxis(current.Parent, query))
+                        return Enumerable.Repeat((SyntaxNodeOrToken)current.Parent, 1);
+                    return Enumerable.Empty<SyntaxNodeOrToken>();
                 default:
                     throw new ArgumentException($"Unsupported query axis: {query.Axis}.", nameof(query));
             }
@@ -219,9 +223,44 @@ namespace SourcePath.Roslyn {
                     return MatchesFilter(nodeOrToken, binary.Left)
                         && MatchesFilter(nodeOrToken, binary.Right);
 
+                case SyntaxFilterBinaryOperator.Equals:
+                    return EvaluateToString(nodeOrToken, binary.Left)
+                        == EvaluateToString(nodeOrToken, binary.Right);
+
                 default:
                     throw new NotSupportedException($"Unknown binary operator: {binary.Operator}.");
             }
+        }
+
+        private string EvaluateToString(SyntaxNodeOrToken nodeOrToken, ISyntaxFilterExpression expression) {
+            switch (expression) {
+                case SyntaxQuery query: {
+                    var node = nodeOrToken.AsNode();
+                    if (node == null)
+                        return null; // TODO?
+
+                    var first = QueryAll((CSharpSyntaxNode)node, query).FirstOrDefault();
+                    return EvaluateToString(first);
+                }
+
+                case SyntaxFilterLiteralExpression literal:
+                    return literal.Value;
+
+                default:
+                    throw new NotSupportedException($"Expression canno be evaluated to a single value: {expression}.");
+            }
+        }
+
+        private string EvaluateToString(SyntaxNodeOrToken nodeOrToken) {
+            var node = nodeOrToken.AsNode();
+            if (node != null) {
+                if (node is IdentifierNameSyntax name)
+                    return EvaluateToString(name.Identifier);
+
+                return null;
+            }
+
+            return (string)nodeOrToken.AsToken().Value;
         }
 
         private bool MatchesSyntaxKind(SyntaxKind kind, SyntaxQuery query) {
