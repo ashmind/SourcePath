@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using SourcePath.CSharp;
 using SourcePath.Roslyn;
 
 namespace SourcePath.Tests.Unit {
-    public class CSharpSyntaxQueryRoslynExecutorTests {
+    public class RoslynCSharpSyntaxQueryExecutorTests {
         [Theory]
         [InlineData("//as", "var x = \"x\" as object;", "\"x\" as object")]
         [InlineData("//ascending", "var y = from x in xs orderby x.X ascending select x;", "ascending")]
@@ -181,7 +178,7 @@ namespace SourcePath.Tests.Unit {
         }
 
         private static void TestQueryAll(string[] expected, CSharpSyntaxNode current, string queryAsString) {
-            var results = new CSharpSyntaxQueryRoslynExecutor().QueryAll(current, ParseQuery(queryAsString));
+            var results = new RoslynCSharpSyntaxQueryExecutor().QueryAll(current, ParseQuery(queryAsString));
             Assert.Equal(expected, results.Select(r => r.ToString()).ToArray());
         }
 

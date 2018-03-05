@@ -1,0 +1,27 @@
+<UserControl x:Class="SourcePath.Vsix.SearchWindowContent"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
+             Background="{DynamicResource {x:Static vsshell:VsBrushes.WindowKey}}"
+             Foreground="{DynamicResource {x:Static vsshell:VsBrushes.WindowTextKey}}"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300"
+             Name="SourcePath">
+  <DockPanel LastChildFill="True">
+    <DockPanel LastChildFill="True"
+               DockPanel.Dock="Top"
+               Height="26"
+               Background="{DynamicResource {x:Static vsshell:VsBrushes.CommandBarGradientKey}}">
+      <Button Margin="8 2"
+              Content="Search"
+              Click="buttonSearch_Click"
+              BorderThickness="0"
+              Background="Transparent"
+              DockPanel.Dock="Right"/>
+      <TextBox Name="textPath" Margin="8 2 0 2" />
+    </DockPanel>
+    <ListBox Name="listResults"></ListBox>
+  </DockPanel>
+</UserControl>

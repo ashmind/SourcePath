@@ -24,7 +24,7 @@ namespace SourcePath.Tests {
         private static void AssertQueryAll(string[] expected, string code, string queryAsString) {
             var unit = TestSyntaxFactory.ParseCompilationUnit(code);
             var query = new SyntaxQueryParser().Parse(queryAsString);
-            var results = new CSharpSyntaxQueryRoslynExecutor().QueryAll(unit, query);
+            var results = new RoslynCSharpSyntaxQueryExecutor().QueryAll(unit, query);
             Assert.Equal(expected, results.Select(r => r.ToString()).ToArray());
         }
     }

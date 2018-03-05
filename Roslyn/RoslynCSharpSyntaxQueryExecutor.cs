@@ -10,7 +10,7 @@ namespace SourcePath.Roslyn {
     using static SyntaxQueryKeyword;
     using static SyntaxKind;
 
-    public class CSharpSyntaxQueryRoslynExecutor {
+    public class RoslynCSharpSyntaxQueryExecutor {
         private static readonly IReadOnlyDictionary<SyntaxQueryKeyword, HashSet<SyntaxKind>> SyntaxKindsByTarget = new Dictionary<SyntaxQueryKeyword, HashSet<SyntaxKind>> {
             // Language
             { Abstract, HashSet(AbstractKeyword) },
