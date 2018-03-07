@@ -4,7 +4,10 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>SourcePath.Tests</AssemblyName>
     <RootNamespace>SourcePath.Tests</RootNamespace>
+    <Configurations>Debug;Release;Debug-Vsix</Configurations>
   </PropertyGroup>
+
+  <Import Project="../VsixVersioning.props" />
 
   <ItemGroup>
     <PackageReference Include="AshMind.Extensions" Version="2.0.0-pre-20180304" />

@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug-Vsix'">
+    <Vsix>true</Vsix>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Vsix)' != 'true'">
+    <CodeAnalysisVersion>2.6.1</CodeAnalysisVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Vsix)' == 'true'">
+    <CodeAnalysisVersion>1.2.2</CodeAnalysisVersion>
+    <DefineConstants>$(DefineConstants);VSIX</DefineConstants>
+  </PropertyGroup>
+</Project>

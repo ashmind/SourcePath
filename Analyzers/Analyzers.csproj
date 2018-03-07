@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>SourcePath.Analyzers</AssemblyName>
+    <RootNamespace>SourcePath.Analyzers</RootNamespace>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>D:\Development\VS 2017\SourcePath\Vsix\Key.snk</AssemblyOriginatorKeyFile>
+    <Configurations>Debug;Release;Debug-Vsix</Configurations>
+  </PropertyGroup>
+  
+  <Import Project="../VsixVersioning.props" />
+  <PropertyGroup Condition="'$(Vsix)' != 'true'">
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Vsix)' == 'true'">
+    <TargetFramework>net461</TargetFramework>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <None Include="..\Vsix\Key.snk" Link="Key.snk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.6.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="$(CodeAnalysisVersion)" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(CodeAnalysisVersion)" />
+    <PackageReference Include="StrongNamer" Version="0.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CSharp\CSharp.csproj" />
+    <ProjectReference Include="..\Roslyn\Roslyn.csproj" />
+  </ItemGroup>
+
+</Project>

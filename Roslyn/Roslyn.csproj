@@ -1,11 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>SourcePath.Roslyn</AssemblyName>
     <RootNamespace>SourcePath.Roslyn</RootNamespace>
+    <Configurations>Debug;Release;Debug-Vsix</Configurations>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
+  <Import Project="../VsixVersioning.props" />
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.6.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(CodeAnalysisVersion)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CSharp\CSharp.csproj" />

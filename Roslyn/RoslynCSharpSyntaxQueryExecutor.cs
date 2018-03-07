@@ -35,7 +35,14 @@ namespace SourcePath.Roslyn {
             { Const, HashSet(ConstKeyword) },
             { Continue, HashSet(ContinueStatement, ContinueKeyword) },
             { Decimal, HashSet(DecimalKeyword) },
-            { Default, HashSet(DefaultExpression, DefaultLiteralExpression, DefaultKeyword, DefaultSwitchLabel) },
+            { Default, HashSet(
+                DefaultExpression,
+                #if !VSIX
+                DefaultLiteralExpression,
+                #endif
+                DefaultKeyword,
+                DefaultSwitchLabel
+            ) },
             { Delegate, HashSet(DelegateDeclaration, DelegateKeyword, AnonymousMethodExpression) },
             { Descending, HashSet(DescendingKeyword) },
             { Do, HashSet(DoStatement, DoKeyword) },
@@ -64,7 +71,13 @@ namespace SourcePath.Roslyn {
             { Interface, HashSet(InterfaceDeclaration, InterfaceKeyword) },
             { Internal, HashSet(InternalKeyword) },
             { Into, HashSet(IntoKeyword) },
-            { Is, HashSet(IsExpression, IsPatternExpression, IsKeyword) },
+            { Is, HashSet(
+                IsExpression,
+                #if !VSIX
+                IsPatternExpression,
+                #endif
+                IsKeyword
+            ) },
             { Join, HashSet(JoinClause, JoinIntoClause, JoinKeyword) },
             { Let, HashSet(LetClause, LetKeyword) },
             { Lock, HashSet(LockStatement, LockKeyword) },
@@ -109,7 +122,13 @@ namespace SourcePath.Roslyn {
             { Struct, HashSet(StructDeclaration, StructKeyword) },
             { Switch, HashSet(SwitchStatement, SwitchKeyword) },
             { This, HashSet(ThisConstructorInitializer, ThisExpression, ThisKeyword) },
-            { Throw, HashSet(ThrowStatement, ThrowExpression, ThrowKeyword) },
+            { Throw, HashSet(
+                ThrowStatement,
+                #if !VSIX
+                ThrowExpression,
+                #endif
+                ThrowKeyword
+            ) },
             { True, HashSet(TrueLiteralExpression, TrueKeyword) },
             { Try, HashSet(TryStatement, TryKeyword) },
             { Type, HashSet(TypeKeyword) },
@@ -124,7 +143,13 @@ namespace SourcePath.Roslyn {
             { Virtual, HashSet(VirtualKeyword) },
             { Void, HashSet(VoidKeyword) },
             { Volatile, HashSet(VolatileKeyword) },
-            { When, HashSet(WhenClause, CatchFilterClause, WhenKeyword) },
+            { When, HashSet(
+                #if !VSIX
+                WhenClause,
+                #endif
+                CatchFilterClause,
+                WhenKeyword
+            ) },
             { Where, HashSet(WhereClause, WhereKeyword) },
             { While, HashSet(WhileStatement, WhileKeyword) },
             { Yield, HashSet(YieldReturnStatement, YieldBreakStatement, YieldKeyword) },
@@ -132,6 +157,10 @@ namespace SourcePath.Roslyn {
             // Extras
             { Name, HashSet(IdentifierName, IdentifierToken) }
         };
+
+        public IEnumerable<SyntaxKind> GetRootSyntaxKinds(SyntaxQuery query) {
+            return GetSyntaxKinds(query);
+        }
 
         private static HashSet<SyntaxKind> HashSet(params SyntaxKind[] kinds) {
             return new HashSet<SyntaxKind>(kinds);
@@ -193,7 +222,7 @@ namespace SourcePath.Roslyn {
         }
 
         private bool MatchesSyntaxKindAndFilter(SyntaxNodeOrToken nodeOrToken, SyntaxKind syntaxKind, SyntaxQuery query) {
-            return MatchesSyntaxKind(syntaxKind, query)
+            return GetSyntaxKinds(query).Contains(syntaxKind)
                 && MatchesFilter(nodeOrToken, query.Filter);
         }
 
@@ -263,10 +292,10 @@ namespace SourcePath.Roslyn {
             return (string)nodeOrToken.AsToken().Value;
         }
 
-        private bool MatchesSyntaxKind(SyntaxKind kind, SyntaxQuery query) {
+        private static HashSet<SyntaxKind> GetSyntaxKinds(SyntaxQuery query) {
             if (!SyntaxKindsByTarget.TryGetValue(query.Keyword, out var kinds))
                 throw new NotSupportedException($"Unsupported query keyword: {query.Keyword}.");
-            return kinds.Contains(kind);
+            return kinds;
         }
     }
 }

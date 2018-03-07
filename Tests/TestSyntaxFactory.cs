@@ -6,7 +6,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SourcePath.Tests {
     public static class TestSyntaxFactory {
-        private static readonly CSharpParseOptions ParseOptions = new CSharpParseOptions(LanguageVersion.Latest);
+        private static readonly CSharpParseOptions ParseOptions = new CSharpParseOptions(
+            #if VSIX
+            LanguageVersion.CSharp6
+            #else
+            LanguageVersion.Latest
+            #endif
+        );
 
         public static StatementSyntax ParseStatement(string code) {
             return EnsureNoErrors(SyntaxFactory.ParseStatement(code, options: ParseOptions));

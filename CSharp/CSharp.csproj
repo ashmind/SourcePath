@@ -3,8 +3,14 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>SourcePath.CSharp</AssemblyName>
     <RootNamespace>SourcePath.CSharp</RootNamespace>
+    <Configurations>Debug;Release;Debug-Vsix</Configurations>
   </PropertyGroup>
+  <Import Project="../VsixVersioning.props" />
   <ItemGroup>
-    <PackageReference Include="Pidgin" Version="1.4.1" />
+    <!--
+      Do not upgrade from 1.3.0, as later versions require
+      newer Sytem.Collections.Immutable which breaks VSIX.
+    -->
+    <PackageReference Include="Pidgin" Version="1.3.0" />
   </ItemGroup>
 </Project>
