@@ -24,11 +24,18 @@ namespace SourcePath.CSharp {
             }
         }
 
-        private IEnumerable<TNodeOrToken> QuerySelf(TNodeOrToken node, SyntaxQuery query) {
-            foreach (var self in GetClosestNoJumpOver(node)) {
-                if (MatchesIgnoringAxis(self, query))
-                    yield return self;
+        private IEnumerable<TNodeOrToken> QuerySelf(TNodeOrToken nodeOrToken, SyntaxQuery query) {
+            var node = AsNode(nodeOrToken);
+            if (node != null && ShouldJumpOver(node)) {
+                foreach (var child in GetChildren(nodeOrToken, noFirstJump: true)) {
+                    if (MatchesIgnoringAxis(child, query))
+                        yield return child;
+                }
+                yield break;
             }
+
+            if (MatchesIgnoringAxis(nodeOrToken, query))
+                yield return nodeOrToken;
         }
 
         private IEnumerable<TNodeOrToken> QueryAllChildrenOrDescendants(TNodeOrToken node, SyntaxQuery query, bool descendants) {
@@ -120,13 +127,6 @@ namespace SourcePath.CSharp {
             return AsIdentifierToString(node);
         }
 
-        private IEnumerable<TNodeOrToken> GetClosestNoJumpOver(TNodeOrToken node) {
-            var nodeNotToken = AsNode(node);
-            if (nodeNotToken != null && ShouldJumpOver(nodeNotToken))
-                return GetChildrenAfterJumpOver(node);
-            return Enumerable.Repeat(node, 1);
-        }
-
         private TNode GetParent(TNodeOrToken node) {
             var parent = GetDirectParent(node);
             while (parent != null && ShouldJumpOver(parent)) {
@@ -135,19 +135,26 @@ namespace SourcePath.CSharp {
             return parent;
         }
 
-        private IEnumerable<TNodeOrToken> GetChildren(TNodeOrToken node) {
-            foreach (var noJumpOver in GetClosestNoJumpOver(node)) {
-                foreach (var child in GetChildrenAfterJumpOver(noJumpOver)) {
-                    yield return child;
+        private IEnumerable<TNodeOrToken> GetChildren(TNodeOrToken nodeOrToken, bool noFirstJump = false) {
+            var node = AsNode(nodeOrToken);
+            if (!noFirstJump && node != null && ShouldJumpOver(node)) {
+                foreach (var jump in GetDirectChildren(nodeOrToken)) {
+                    foreach (var child in GetChildren(jump)) {
+                        yield return child;
+                    }
                 }
+                yield break;
             }
-        }
 
-        private IEnumerable<TNodeOrToken> GetChildrenAfterJumpOver(TNodeOrToken node) {
-            foreach (var child in GetDirectChildren(node)) {
-                foreach (var noJumpOver in GetClosestNoJumpOver(child)) {
-                    yield return noJumpOver;
+            foreach (var child in GetDirectChildren(nodeOrToken)) {
+                var childNode = AsNode(child);
+                if (childNode != null && ShouldJumpOver(childNode)) {
+                    foreach (var jumpChild in GetChildren(child, noFirstJump: true)) {
+                        yield return jumpChild;
+                    }
+                    continue;
                 }
+                yield return child;
             }
         }
 

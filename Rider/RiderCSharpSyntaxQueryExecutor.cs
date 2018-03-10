@@ -18,7 +18,6 @@ namespace SourcePath.Roslyn {
         private static readonly IReadOnlyDictionary<SyntaxQueryKeyword, HashSet<NodeType>> NodeTypesByKeyword = new Dictionary<SyntaxQueryKeyword, HashSet<NodeType>> {
             // Language
             { Abstract, HashSet(ABSTRACT_KEYWORD) },
-            { Add, HashSet() /* Handled separately by AccessorIdentifierByKeyword */ },
             { Alias, HashSet(ALIAS_KEYWORD) },
             { As, HashSet(AS_EXPRESSION) },
             { Ascending, HashSet(ASCENDING_KEYWORD) },
@@ -58,8 +57,6 @@ namespace SourcePath.Roslyn {
             { For, HashSet(FOR_STATEMENT, FOR_KEYWORD) },
             { Foreach, HashSet(FOREACH_STATEMENT, FOREACH_KEYWORD) },
             { From, HashSet(QUERY_FIRST_FROM, QUERY_FROM_CLAUSE, FROM_KEYWORD) },
-            { Get, HashSet() /* Handled separately by AccessorIdentifierByKeyword */ },
-            { Global, HashSet(/*GLOBAL_KEYWORD*/) },
             { Goto, HashSet(GOTO_CASE_STATEMENT, GOTO_STATEMENT, GOTO_KEYWORD) },
             { Group, HashSet(QUERY_GROUP_CLAUSE, GROUP_KEYWORD) },
             { Implicit, HashSet(IMPLICIT_KEYWORD) },
@@ -94,12 +91,10 @@ namespace SourcePath.Roslyn {
             { Public, HashSet(PUBLIC_KEYWORD) },
             { Readonly, HashSet(READONLY_KEYWORD) },
             { Ref, HashSet(REF_KEYWORD) },
-            { Remove, HashSet() /* Handled separately by AccessorIdentifierByKeyword */ },
             { Return, HashSet(RETURN_STATEMENT, RETURN_KEYWORD) },
             { SByte, HashSet(SBYTE_KEYWORD) },
             { Sealed, HashSet(SEALED_KEYWORD) },
             { Select, HashSet(QUERY_SELECT_CLAUSE, SELECT_KEYWORD) },
-            { Set, HashSet() /* Handled separately by AccessorIdentifierByKeyword */ },
             { Short, HashSet(SHORT_KEYWORD) },
             { Sizeof, HashSet(UNSAFE_CODE_SIZE_OF_EXPRESSION, SIZEOF_KEYWORD) },
             { Stackalloc, HashSet(UNSAFE_CODE_STACK_ALLOC_INITIALIZER, STACKALLOC_KEYWORD) },
@@ -132,15 +127,8 @@ namespace SourcePath.Roslyn {
             { Name, HashSet(IDENTIFIER) }
         };
 
-        private static readonly IDictionary<SyntaxQueryKeyword, string> AccessorIdentifierByKeyword = new Dictionary<SyntaxQueryKeyword, string> {
-            { Add, "add" },
-            { Get, "get" },
-            { Remove, "remove" },
-            { Set, "set" },
-        };
-
         private static readonly HashSet<NodeType> ChildrenSkipNodeTypes = new HashSet<NodeType> {
-            C_SHARP_FILE, USING_LIST, CLASS_BODY
+            C_SHARP_FILE, CLASS_BODY, DECLARATION_STATEMENT, MODIFIERS_LIST, MULTIPLE_CONSTANT_DECLARATION, USING_LIST
         };
 
         private static HashSet<NodeType> HashSet(params NodeType[] types) {
@@ -175,35 +163,45 @@ namespace SourcePath.Roslyn {
             child = null;
             return false;
         }
-
+        
         protected override bool MatchesNodeType(ITreeNode node, SyntaxQuery query) {
-            switch (node) {
-                case IAccessorDeclaration accessor:
-                    if (!AccessorIdentifierByKeyword.TryGetValue(query.Keyword, out var identifier))
-                        return false;
-                    return identifier == accessor.NameIdentifier.Name;
+            switch (query.Keyword) {
+                case Add: return IsAccessorWithName("add");
+                case Get: return IsAccessorWithName("get");
+                case Remove: return IsAccessorWithName("remove");
+                case Set: return IsAccessorWithName("set");
 
-                case IConstructorInitializer initializer:
-                    switch (initializer.Kind) {
-                        case ConstructorInitializerKind.BASE: return query.Keyword == Base;
-                        case ConstructorInitializerKind.THIS: return query.Keyword == This;
-                        default: return false;
-                    }
+                case Base: if (IsConstructorInitializer(ConstructorInitializerKind.BASE)) return true; break;
+                case This: if (IsConstructorInitializer(ConstructorInitializerKind.THIS)) return true; break;
 
-                case IMultipleEventDeclaration events:
-                    if (query.Keyword != Event)
-                        return false;
-                    return events.Children().OfType<IEventDeclaration>().Count() == 1;
+                case Event: {
+                    if (node is IMultipleEventDeclaration events && events.Children().OfType<IEventDeclaration>().Count() == 1)
+                        return true;
+                    break;
+                }
 
-                case ISwitchCaseLabel caseLabel:
-                    if (caseLabel.IsDefault)
-                        return query.Keyword == Default;
-                    return query.Keyword == Case;
+                case Default: if (IsCaseLabel(isDefault: true)) return true; break;
+                case Case: if (IsCaseLabel(isDefault: false)) return true; break;
 
-                default:
-                    return GetNodeTypes(query).Contains(node.NodeType);
+                case Global: return node is IIdentifier identifier && identifier.Name == "global";
             }
 
+            return GetNodeTypes(query).Contains(node.NodeType);
+
+            bool IsAccessorWithName(string name) {
+                return node is IAccessorDeclaration accessor
+                    && accessor.NameIdentifier.Name == name;
+            }
+
+            bool IsConstructorInitializer(ConstructorInitializerKind kind) {
+                return node is IConstructorInitializer initializer
+                    && initializer.Kind == kind;
+            }
+
+            bool IsCaseLabel(bool isDefault) {
+                return node is ISwitchCaseLabel caseLabel
+                    && caseLabel.IsDefault == isDefault;
+            }
         }
 
         protected override string AsIdentifierToString(ITreeNode node) {
