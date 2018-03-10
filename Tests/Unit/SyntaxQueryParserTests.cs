@@ -71,13 +71,13 @@ namespace SourcePath.Tests.Unit {
                 "roslyn_SyntaxKindFacts.cached.cs"
             );
             if (File.Exists(factsPath))
-                return await File.ReadAllTextAsync(factsPath);
+                return File.ReadAllText(factsPath);
 
             using (var client = new HttpClient()) {
                 var facts = await client.GetStringAsync(
                     "https://raw.githubusercontent.com/dotnet/roslyn/1b0cf5c732062f66b71a3d62a165d6eb5f8b3022/src/Compilers/CSharp/Portable/Syntax/SyntaxKindFacts.cs"
                 ).ConfigureAwait(false);
-                await File.WriteAllTextAsync(factsPath, facts).ConfigureAwait(false);
+                File.WriteAllText(factsPath, facts);
                 return facts;
             }
         }

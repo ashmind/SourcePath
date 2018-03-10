@@ -18,6 +18,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		VsixVersioning.props = VsixVersioning.props
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rider", "Rider\Rider.csproj", "{095FC5B5-29DD-4DC3-A4C5-1E0FF6B01B39}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rider.Tests", "Rider.Tests\Rider.Tests.csproj", "{DD1299B3-44BA-4248-9402-25A9C53233C1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +57,18 @@ Global
 		{CE21E86A-C1DB-4C05-AF26-8331380D4035}.Debug-Vsix|Any CPU.Build.0 = Debug-Vsix|Any CPU
 		{CE21E86A-C1DB-4C05-AF26-8331380D4035}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE21E86A-C1DB-4C05-AF26-8331380D4035}.Release|Any CPU.Build.0 = Release|Any CPU
+		{095FC5B5-29DD-4DC3-A4C5-1E0FF6B01B39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{095FC5B5-29DD-4DC3-A4C5-1E0FF6B01B39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{095FC5B5-29DD-4DC3-A4C5-1E0FF6B01B39}.Debug-Vsix|Any CPU.ActiveCfg = Debug|Any CPU
+		{095FC5B5-29DD-4DC3-A4C5-1E0FF6B01B39}.Debug-Vsix|Any CPU.Build.0 = Debug|Any CPU
+		{095FC5B5-29DD-4DC3-A4C5-1E0FF6B01B39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{095FC5B5-29DD-4DC3-A4C5-1E0FF6B01B39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD1299B3-44BA-4248-9402-25A9C53233C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD1299B3-44BA-4248-9402-25A9C53233C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD1299B3-44BA-4248-9402-25A9C53233C1}.Debug-Vsix|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD1299B3-44BA-4248-9402-25A9C53233C1}.Debug-Vsix|Any CPU.Build.0 = Debug|Any CPU
+		{DD1299B3-44BA-4248-9402-25A9C53233C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD1299B3-44BA-4248-9402-25A9C53233C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -14,12 +14,15 @@ namespace SourcePath.Tests {
             #endif
         );
 
-        public static StatementSyntax ParseStatement(string code) {
-            return EnsureNoErrors(SyntaxFactory.ParseStatement(code, options: ParseOptions));
-        }
-
-        public static CompilationUnitSyntax ParseCompilationUnit(string code) {
-            return EnsureNoErrors(SyntaxFactory.ParseCompilationUnit(code, options: ParseOptions));
+        public static SyntaxNode Parse(string code, TestSourceKind codeKind) {
+            switch (codeKind) {
+                case TestSourceKind.CompilationUnit:
+                    return EnsureNoErrors(SyntaxFactory.ParseCompilationUnit(code, options: ParseOptions));
+                case TestSourceKind.Statement:
+                    return EnsureNoErrors(SyntaxFactory.ParseStatement(code, options: ParseOptions));
+                default:
+                    throw new ArgumentException(nameof(codeKind));
+            }
         }
 
         private static TSyntax EnsureNoErrors<TSyntax>(TSyntax syntax)

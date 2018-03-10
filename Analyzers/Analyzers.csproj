@@ -15,6 +15,15 @@
   <PropertyGroup Condition="'$(Vsix)' == 'true'">
     <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Vsix|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
   
   <ItemGroup>
     <None Include="..\Vsix\Key.snk" Link="Key.snk" />

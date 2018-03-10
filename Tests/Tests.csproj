@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.0</TargetFrameworks>
     <AssemblyName>SourcePath.Tests</AssemblyName>
     <RootNamespace>SourcePath.Tests</RootNamespace>
     <Configurations>Debug;Release;Debug-Vsix</Configurations>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <Import Project="../VsixVersioning.props" />

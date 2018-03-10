@@ -5,6 +5,15 @@
     <RootNamespace>SourcePath.CSharp</RootNamespace>
     <Configurations>Debug;Release;Debug-Vsix</Configurations>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Vsix|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
   <Import Project="../VsixVersioning.props" />
   <ItemGroup>
     <!--
