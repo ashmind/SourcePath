@@ -12,24 +12,38 @@ using Xunit;
 using SourcePath.CSharp;
 
 namespace SourcePath.Tests.Unit {
-    public class SyntaxQueryParserTests {
+    public class SyntaxPathParserTests {
         [Theory]
-        [InlineData("if", SyntaxQueryKeyword.If)]
-        public void Parse_Basic(string queryAsString, SyntaxQueryKeyword expectedTarget) {
-            var query = new SyntaxQueryParser().Parse(queryAsString);
-            Assert.Equal(expectedTarget, query.Keyword);
+        [InlineData("if", SyntaxPathKeyword.If)]
+        public void Parse_Basic(string pathAsString, SyntaxPathKeyword expectedTarget) {
+            var path = new SyntaxPathParser().Parse(pathAsString);
+            var segment = Assert.Single(path.Segments);
+            Assert.Equal(expectedTarget, segment.Keyword);
         }
 
         [Theory]
-        [InlineData("if", SyntaxQueryAxis.Child)]
-        [InlineData("/if", SyntaxQueryAxis.Child)]
-        [InlineData("//if", SyntaxQueryAxis.Descendant)]
-        [InlineData("descendant::if", SyntaxQueryAxis.Descendant)]
-        [InlineData("self::if", SyntaxQueryAxis.Self)]
-        [InlineData("parent::if", SyntaxQueryAxis.Parent)]
-        public void Parse_Axis(string queryAsString, SyntaxQueryAxis expectedAxis) {
-            var query = new SyntaxQueryParser().Parse(queryAsString);
-            Assert.Equal(expectedAxis, query.Axis);
+        [InlineData("*", SyntaxPathKeyword.Star)]
+        [InlineData("name", SyntaxPathKeyword.Name)]
+        [InlineData("lambda", SyntaxPathKeyword.Lambda)]
+        [InlineData("tuple", SyntaxPathKeyword.Tuple)]
+        public void Parse_Special(string pathAsString, SyntaxPathKeyword expectedTarget) {
+            var path = new SyntaxPathParser().Parse(pathAsString);
+            var segment = Assert.Single(path.Segments);
+            Assert.Equal(expectedTarget, segment.Keyword);
+        }
+
+        [Theory]
+        [InlineData("if", SyntaxPathAxis.Default)]
+        [InlineData("/if", SyntaxPathAxis.Child)]
+        [InlineData("//if", SyntaxPathAxis.Descendant)]
+        [InlineData("descendant::if", SyntaxPathAxis.Descendant)]
+        [InlineData("self::if", SyntaxPathAxis.Self)]
+        [InlineData("parent::if", SyntaxPathAxis.Parent)]
+        [InlineData("ancestor::if", SyntaxPathAxis.Ancestor)]
+        public void Parse_Axis(string pathAsString, SyntaxPathAxis expectedAxis) {
+            var path = new SyntaxPathParser().Parse(pathAsString);
+            var segment = Assert.Single(path.Segments);
+            Assert.Equal(expectedAxis, segment.Axis);
         }
 
         [Theory]
@@ -37,18 +51,35 @@ namespace SourcePath.Tests.Unit {
         [InlineData("if[if && if]")]
         [InlineData("if[if && if && if]")]
         [InlineData("if[if && if[if && if]]")]
+        [InlineData("if[if || if]")]
         [InlineData("class[name == 'C']")]
         [InlineData("class[name == 'C' && method[name == 'M']]")]
-        public void Parse_Filter(string queryAsString) {
-            var query = new SyntaxQueryParser().Parse(queryAsString);
-            Assert.Equal(queryAsString, query.ToString());
+        public void Parse_Filter(string pathAsString) {
+            var path = new SyntaxPathParser().Parse(pathAsString);
+            Assert.Equal(pathAsString, path.ToString());
+        }
+
+        [Theory]
+        [InlineData("if/if")]
+        [InlineData("if/if/if")]
+        [InlineData("self::if/parent::if/self::if")]
+        public void Parse_Path(string pathAsString) {
+            var path = new SyntaxPathParser().Parse(pathAsString);
+            Assert.Equal(pathAsString, path.ToString());
         }
 
         [Theory]
         [MemberData(nameof(GetAllKeywords))]
         public void Parse_Keyword(string keyword) {
             // Assert.DoesNotThrow
-            new SyntaxQueryParser().Parse(keyword);
+            new SyntaxPathParser().Parse(keyword);
+        }
+
+        [Theory]
+        [InlineData("*[kind() == 'MethodDeclaration']")]
+        public void Parse_Function(string pathAsString) {
+            var path = new SyntaxPathParser().Parse(pathAsString);
+            Assert.Equal(pathAsString, path.ToString());
         }
 
         public static IEnumerable<object[]> GetAllKeywords() {

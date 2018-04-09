@@ -1,16 +1,15 @@
-using System;
 using System.Text;
 
 namespace SourcePath.CSharp {
-    public class SyntaxQuery : ISyntaxFilterExpression {
-        public SyntaxQuery(SyntaxQueryAxis axis, SyntaxQueryKeyword keyword, ISyntaxFilterExpression filter) {
+    public class SyntaxPathSegment {
+        public SyntaxPathSegment(SyntaxPathAxis axis, SyntaxPathKeyword keyword, ISyntaxFilterExpression filter) {
             Axis = axis;
             Keyword = keyword;
             Filter = filter;
         }
 
-        public SyntaxQueryAxis Axis { get; }
-        public SyntaxQueryKeyword Keyword { get; }
+        public SyntaxPathAxis Axis { get; }
+        public SyntaxPathKeyword Keyword { get; }
         public ISyntaxFilterExpression Filter { get; }
 
         public override string ToString() {
@@ -21,11 +20,11 @@ namespace SourcePath.CSharp {
 
         public void AppendToString(StringBuilder builder) {
             switch (Axis) {
-                case SyntaxQueryAxis.Self: builder.Append("self::"); break;
-                case SyntaxQueryAxis.Descendant: builder.Append("//"); break;
-                case SyntaxQueryAxis.Parent: builder.Append("parent::"); break;
+                case SyntaxPathAxis.Self: builder.Append("self::"); break;
+                case SyntaxPathAxis.Descendant: builder.Append("//"); break;
+                case SyntaxPathAxis.Parent: builder.Append("parent::"); break;
             }
-            builder.Append(Keyword.ToString("G").ToLowerInvariant());
+            builder.Append(Keyword != SyntaxPathKeyword.Star ? Keyword.ToString("G").ToLowerInvariant() : "*");
             if (Filter != null) {
                 builder.Append("[");
                 Filter.AppendToString(builder);

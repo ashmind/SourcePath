@@ -4,7 +4,7 @@ using SourcePath.Roslyn;
 using Xunit;
 
 namespace SourcePath.Tests {
-    public class UseCases {
+    public class UseCaseTests {
         [Theory]
         [InlineData("class C { async void M() {} }", "async void M() {}")]
         [InlineData("class C { void M() {} }", null)]
@@ -30,9 +30,19 @@ namespace SourcePath.Tests {
             AssertQueryAll(expected != null ? new[] { expected } : new string[0], code, query);
         }
 
+        [Theory]
+        [InlineData("class C { void M() { switch(1) { case int i: break; } } }", "case int i")]
+        [InlineData("class C { void M() { switch(1) { case 2: break; } } }", null)]
+        [InlineData("class C { void M(object o) { if (o is int i) {} } }", "o is int i")]
+        [InlineData("class C { void M(object o) { if (o is int) {} } }", null)]
+        public void SharpLabExplainModePatternMatching(string code, string expected) {
+            var query = "//*[kind() == 'IsPatternExpression' || self::case[is]]";
+            AssertQueryAll(expected != null ? new[] { expected } : new string[0], code, query);
+        }
+
         private static void AssertQueryAll(string[] expected, string code, string queryAsString) {
             var unit = TestSyntaxFactory.Parse(code, TestSourceKind.CompilationUnit);
-            var query = new SyntaxQueryParser().Parse(queryAsString);
+            var query = new SyntaxPathParser().Parse(queryAsString);
             var results = new RoslynCSharpSyntaxQueryExecutor().QueryAll(unit, query);
             Assert.Equal(expected, results.Select(r => r.ToString()).ToArray());
         }

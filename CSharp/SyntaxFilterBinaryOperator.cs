@@ -5,6 +5,7 @@ using System.Text;
 namespace SourcePath.CSharp {
     public enum SyntaxFilterBinaryOperator {
         And,
+        Or,
         Equals
     }
 }

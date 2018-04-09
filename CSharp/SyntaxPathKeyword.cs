@@ -1,5 +1,5 @@
 namespace SourcePath.CSharp {
-    public enum SyntaxQueryKeyword {
+    public enum SyntaxPathKeyword {
         // Language
         Abstract,
         Add,
@@ -113,6 +113,9 @@ namespace SourcePath.CSharp {
         Yield,
 
         // Extras
-        Name
+        Star,
+        Name,
+        Lambda,
+        Tuple
     }
 }

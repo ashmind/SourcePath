@@ -6,11 +6,12 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SourcePath.Roslyn {
-    using static SyntaxQueryKeyword;
+    using static SyntaxPathKeyword;
     using static SyntaxKind;
+    using System.Linq;
 
-    public class RoslynCSharpSyntaxQueryExecutor : SyntaxQueryExecutorBase<SyntaxNodeOrToken, ChildSyntaxList, SyntaxNode> {
-        private static readonly IReadOnlyDictionary<SyntaxQueryKeyword, HashSet<SyntaxKind>> SyntaxKindsByKeyword = new Dictionary<SyntaxQueryKeyword, HashSet<SyntaxKind>> {
+    public class RoslynCSharpSyntaxQueryExecutor : SyntaxQueryExecutorBase<SyntaxNodeOrToken, ChildSyntaxList, SyntaxNode>, IRoslynCSharpSyntaxQueryExecutor {
+        private static readonly IReadOnlyDictionary<SyntaxPathKeyword, HashSet<SyntaxKind>> SyntaxKindsByKeyword = new Dictionary<SyntaxPathKeyword, HashSet<SyntaxKind>> {
             // Language
             { Abstract, HashSet(AbstractKeyword) },
             { Add, HashSet(AddAccessorDeclaration, AddKeyword) },
@@ -26,7 +27,13 @@ namespace SourcePath.Roslyn {
             { Break, HashSet(BreakStatement, BreakKeyword) },
             { By, HashSet(ByKeyword) },
             { Byte, HashSet(ByteKeyword) },
-            { Case, HashSet(CaseSwitchLabel, CaseKeyword) },
+            { Case, HashSet(
+                CaseSwitchLabel,
+                #if !VSIX
+                CasePatternSwitchLabel,
+                #endif
+                CaseKeyword
+            ) },
             { Catch, HashSet(CatchClause, CatchDeclaration) },
             { Char, HashSet(CharKeyword) },
             { Checked, HashSet(CheckedExpression, CheckedStatement, CheckedKeyword) },
@@ -48,7 +55,7 @@ namespace SourcePath.Roslyn {
             { Double, HashSet(DoubleKeyword) },
             { Else, HashSet(ElseClause, ElseKeyword) },
             { Enum, HashSet(EnumDeclaration, EnumKeyword) },
-            { SyntaxQueryKeyword.Equals, HashSet(EqualsKeyword) },
+            { SyntaxPathKeyword.Equals, HashSet(EqualsKeyword) },
             { Event, HashSet(EventDeclaration, EventFieldDeclaration, EventKeyword) },
             { Explicit, HashSet(ExplicitKeyword) },
             { Extern, HashSet(ExternAliasDirective, ExternKeyword) },
@@ -98,7 +105,7 @@ namespace SourcePath.Roslyn {
             { OrderBy, HashSet(OrderByClause, OrderByKeyword) },
             { Out, HashSet(OutKeyword) },
             { Override, HashSet(OverrideKeyword) },
-            { Param, HashSet(ParamKeyword) },
+            { Param, HashSet(ParamKeyword, Parameter) },
             { Params, HashSet(ParamsKeyword) },
             { Partial, HashSet(PartialKeyword) },
             { Private, HashSet(PrivateKeyword) },
@@ -154,11 +161,18 @@ namespace SourcePath.Roslyn {
             { Yield, HashSet(YieldReturnStatement, YieldBreakStatement, YieldKeyword) },
 
             // Extras
-            { Name, HashSet(IdentifierName, IdentifierToken) }
+            { Name, HashSet(IdentifierName, IdentifierToken) },
+            { Lambda, HashSet(ParenthesizedLambdaExpression, SimpleLambdaExpression) },
+            { Tuple, HashSet(TupleType, TupleExpression) }
         };
 
-        public IEnumerable<SyntaxKind> GetRootSyntaxKinds(SyntaxQuery query) {
-            return GetSyntaxKinds(query);
+        private static readonly IReadOnlyDictionary<SyntaxKind, string> SyntaxKindStrings = ((SyntaxKind[])System.Enum.GetValues(typeof(SyntaxKind))).ToDictionary(
+            v => v,
+            v => v.ToString("G")
+        );
+
+        public IEnumerable<SyntaxKind> GetRootSyntaxKinds(SyntaxPath path) {
+            return GetSyntaxKinds(path.Segments[0]);
         }
 
         private static HashSet<SyntaxKind> HashSet(params SyntaxKind[] kinds) {
@@ -171,6 +185,7 @@ namespace SourcePath.Roslyn {
 
         protected override SyntaxNode GetDirectParent(SyntaxNodeOrToken nodeOrToken) => nodeOrToken.Parent;
         protected override ChildSyntaxList GetDirectChildren(SyntaxNodeOrToken nodeOrToken) => nodeOrToken.AsNode()?.ChildNodesAndTokens() ?? new ChildSyntaxList();
+        protected override bool Exists(SyntaxNodeOrToken node) => node.Kind() != None;
         protected override SyntaxNodeOrToken ToNodeOrToken(SyntaxNode node) => node;
         protected override SyntaxNode AsNode(SyntaxNodeOrToken nodeOrToken) => nodeOrToken.AsNode();
 
@@ -189,8 +204,14 @@ namespace SourcePath.Roslyn {
             return keyword != default;
         }
 
-        protected override bool MatchesNodeType(SyntaxNodeOrToken nodeOrToken, SyntaxQuery query) {
+        protected override bool MatchesNodeType(SyntaxNodeOrToken nodeOrToken, SyntaxPathSegment query) {
+            if (query.Keyword == Star)
+                return nodeOrToken.Kind() != EndOfFileToken;
             return GetSyntaxKinds(query).Contains(nodeOrToken.Kind());
+        }
+
+        protected override string EvaluateKindFunction(SyntaxNodeOrToken nodeOrToken) {
+            return SyntaxKindStrings[nodeOrToken.Kind()];
         }
 
         protected override string AsIdentifierToString(SyntaxNodeOrToken nodeOrToken) {
@@ -201,9 +222,10 @@ namespace SourcePath.Roslyn {
             return null;
         }
 
-        private static HashSet<SyntaxKind> GetSyntaxKinds(SyntaxQuery query) {
+        private static HashSet<SyntaxKind> GetSyntaxKinds(SyntaxPathSegment query) {
             if (!SyntaxKindsByKeyword.TryGetValue(query.Keyword, out var kinds))
                 throw new NotSupportedException($"Unsupported query keyword: {query.Keyword}.");
+
             return kinds;
         }
     }

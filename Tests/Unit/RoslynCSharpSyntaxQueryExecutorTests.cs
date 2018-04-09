@@ -75,8 +75,8 @@ namespace SourcePath.Tests.Unit {
         //[InlineData("//while", "do {} while (true);", "while (true)")]
         [InlineData("self::yield", "yield return 0;", "yield return 0;")]
         [InlineData("self::yield", "yield break;", "yield break;")]
-        public void QueryAll_Statement(string query, string code, string expected) {
-            TestQueryAllReturnsExpected(code, Statement, query, expected);
+        public void QueryAll_Statement(string path, string code, string expected) {
+            TestQueryAllReturnsExpected(code, Statement, path, expected);
         }
 
         [Theory]
@@ -100,9 +100,12 @@ namespace SourcePath.Tests.Unit {
         }
 
         [Theory]
+        [InlineData("self::*", "M();", "M();")]
         [InlineData("//name", "int x = 5;", "x")]
-        public void QueryAll_Expression_SpecialCategory(string query, string code, string expected) {
-            TestQueryAllReturnsExpected(code, CompilationUnit, query, expected);
+        [InlineData("//lambda", "Func<int> x = () => 5;", "() => 5")]
+        [InlineData("//tuple", "var x = (1, 2);", "(1, 2)")]
+        public void QueryAll_Expression_SpecialCategory(string path, string code, string expected) {
+            TestQueryAllReturnsExpected(code, CompilationUnit, path, expected);
         }
 
         [Theory]
@@ -110,8 +113,8 @@ namespace SourcePath.Tests.Unit {
         [InlineData("//case", "switch (x) { default: break; }", new string[0])]
         [InlineData("//default", "switch (x) { default: break; }", new[] { "default: break;" })]
         [InlineData("//default", "switch (x) { case 'A': break; }", new string[0])]
-        public void QueryAll_SwitchSection(string query, string code, string[] expected) {
-            TestQueryAllReturnsExpected(code, Statement, query, expected);
+        public void QueryAll_SwitchSection(string path, string code, string[] expected) {
+            TestQueryAllReturnsExpected(code, Statement, path, expected);
         }
 
         [Theory]
@@ -156,8 +159,8 @@ namespace SourcePath.Tests.Unit {
         [InlineData("//virtual", "class X { protected virtual void M() {} }", "virtual")]
         [InlineData("//void", "class X { void M() {} }", "void")]
         [InlineData("//volatile", "class X { volatile int f; }", "volatile")]
-        public void QueryAll_Declaration(string query, string code, string expected) {
-            TestQueryAllReturnsExpected(code, CompilationUnit, query, expected);
+        public void QueryAll_Declaration(string path, string code, string expected) {
+            TestQueryAllReturnsExpected(code, CompilationUnit, path, expected);
         }
 
         // Temporarily disabled (not easy to implement in Rider, need to revisit)
@@ -176,19 +179,32 @@ namespace SourcePath.Tests.Unit {
         //}
 
         [Theory]
-        [InlineData("method", "class X { void M() {} }", "void M() {}")]
-        public void QueryAll_Declaration_SpecialCategory(string query, string code, string expected) {
-            TestQueryAllReturnsExpected(code, CompilationUnit, query, expected);
+        [InlineData("//method", "class X { void M() {} }", "void M() {}")]
+        [InlineData("//param", "class X { void M(int x) {} }", "int x")]
+        public void QueryAll_Declaration_SpecialCategory(string path, string code, string expected) {
+            TestQueryAllReturnsExpected(code, CompilationUnit, path, expected);
         }
 
-        protected virtual void TestQueryAllReturnsExpected(string code, TestSourceKind codeKind, string query, params string[] expected) {
+        [Theory]
+        [InlineData("method/parent::class/name", "class C { void M() {} }", "C")]
+        public void QueryAll_Path(string path, string code, string expected) {
+            TestQueryAllReturnsExpected(code, CompilationUnit, path, expected);
+        }
+
+        [Theory]
+        [InlineData("//*[kind() == 'MethodDeclaration']", "class C { void M() {} }", "void M() {}")]
+        public void QueryAll_Function_RawKind(string path, string code, string expected) {
+            TestQueryAllReturnsExpected(code, CompilationUnit, path, expected);
+        }
+
+        protected virtual void TestQueryAllReturnsExpected(string code, TestSourceKind codeKind, string path, params string[] expected) {
             var current = TestSyntaxFactory.Parse(code, codeKind);
-            var results = new RoslynCSharpSyntaxQueryExecutor().QueryAll(current, ParseQuery(query));
+            var results = new RoslynCSharpSyntaxQueryExecutor().QueryAll(current, ParsePath(path));
             Assert.Equal(expected, results.Select(r => r.ToString()).ToArray());
         }
 
-        protected static SyntaxQuery ParseQuery(string query) {
-            return new SyntaxQueryParser().Parse(query);
+        protected static SyntaxPath ParsePath(string query) {
+            return new SyntaxPathParser().Parse(query);
         }
     }
 }
