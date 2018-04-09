@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>SourcePath.Configuration</AssemblyName>
+    <RootNamespace>SourcePath.Configuration</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CSharp\CSharp.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,23 +1,24 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
 using SourcePath.CSharp;
 
-namespace SourcePath.Analyzers {
-    public class ConfigurationLoader {
+namespace SourcePath.Configuration {
+    public class SyntaxRuleConfigurationLoader {
         private readonly SyntaxQueryParser _parser;
 
-        public ConfigurationLoader(SyntaxQueryParser parser) {
+        public SyntaxRuleConfigurationLoader(SyntaxQueryParser parser) {
             _parser = parser;
         }
 
-        public Configuration Load(string content) {
+        public string DefaultFileName => ".sourcepathrc";
+
+        public SyntaxRuleConfiguration Load(string content) {
             var lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            var rules = new List<Rule>();
+            var rules = new List<SyntaxRule>();
 
             string ruleId = null;
             SyntaxQuery ruleQuery = null;
-            RuleSeverity? ruleSeverity = null;
+            SyntaxRuleSeverity? ruleSeverity = null;
             string ruleMessage = null;
             foreach (var line in lines) {
                 if (Char.IsWhiteSpace(line[0])) {
@@ -31,12 +32,12 @@ namespace SourcePath.Analyzers {
                     }
                     // TODO: don't allocate
                     var parts = trimmed.Split(new[] { ':' }, 2);
-                    ruleSeverity = parts[0] == "error" ? RuleSeverity.Error : RuleSeverity.Warning;
+                    ruleSeverity = parts[0] == "error" ? SyntaxRuleSeverity.Error : SyntaxRuleSeverity.Warning;
                     ruleMessage = parts[1].Trim(); // TODO: don't allocate (if possible)
                 }
                 else {
                     if (ruleId != null && ruleQuery != null)
-                        rules.Add(new Rule(ruleId, ruleQuery, ruleSeverity ?? RuleSeverity.Error, ruleMessage));
+                        rules.Add(new SyntaxRule(ruleId, ruleQuery, ruleSeverity ?? SyntaxRuleSeverity.Error, ruleMessage));
                     ruleId = line;
                     ruleQuery = null;
                     ruleSeverity = null;
@@ -44,8 +45,8 @@ namespace SourcePath.Analyzers {
                 }
             }
             if (ruleId != null && ruleQuery != null)
-                rules.Add(new Rule(ruleId, ruleQuery, ruleSeverity ?? RuleSeverity.Error, ruleMessage));
-            return new Configuration(rules);
+                rules.Add(new SyntaxRule(ruleId, ruleQuery, ruleSeverity ?? SyntaxRuleSeverity.Error, ruleMessage));
+            return new SyntaxRuleConfiguration(rules);
         }
     }
 }

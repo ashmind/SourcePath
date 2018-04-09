@@ -175,7 +175,7 @@ namespace SourcePath.Roslyn {
         protected override SyntaxNode AsNode(SyntaxNodeOrToken nodeOrToken) => nodeOrToken.AsNode();
 
         protected override bool IsExpressionStatement(SyntaxNodeOrToken nodeOrToken, out SyntaxNode expression) {
-            expression = nodeOrToken.AsNode() as ExpressionStatementSyntax;
+            expression = (nodeOrToken.AsNode() as ExpressionStatementSyntax)?.Expression;
             return expression != null;
         }
 

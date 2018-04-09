@@ -37,6 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Configuration\Configuration.csproj" />
     <ProjectReference Include="..\CSharp\CSharp.csproj" />
     <ProjectReference Include="..\Roslyn\Roslyn.csproj" />
   </ItemGroup>

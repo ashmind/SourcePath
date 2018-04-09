@@ -112,7 +112,7 @@ namespace SourcePath.CSharp {
             switch (expression) {
                 case SyntaxQuery query: {
                     var first = QueryAll(node, query).FirstOrDefault();
-                    return EvaluateToString(node);
+                    return EvaluateToString(first);
                 }
 
                 case SyntaxFilterLiteralExpression literal:

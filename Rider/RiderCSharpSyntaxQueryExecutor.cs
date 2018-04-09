@@ -1,18 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using SourcePath.CSharp;
-using Microsoft.CodeAnalysis.CSharp;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Parsing;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Impl.Tree;
 
-namespace SourcePath.Roslyn {
+namespace SourcePath.Rider {
     using static SyntaxQueryKeyword;
     using static CSharpTokenType;
     using static ElementType;
-    using System.Linq;
 
     public class RiderCSharpSyntaxQueryExecutor : SyntaxQueryExecutorBase<ITreeNode, IEnumerable<ITreeNode>, ITreeNode> {
         private static readonly IReadOnlyDictionary<SyntaxQueryKeyword, HashSet<NodeType>> NodeTypesByKeyword = new Dictionary<SyntaxQueryKeyword, HashSet<NodeType>> {
