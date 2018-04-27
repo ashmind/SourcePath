@@ -16,9 +16,10 @@
   </PropertyGroup>
   <Import Project="../VsixVersioning.props" />
   <ItemGroup>
+    <PackageReference Include="Argument" Version="1.1.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(CodeAnalysisVersion)" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CSharp\CSharp.csproj" />
+    <ProjectReference Include="..\[Core]\[Core].csproj" />
   </ItemGroup>
 </Project>

@@ -378,10 +378,6 @@
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
-    <ProjectReference Include="..\CSharp\CSharp.csproj">
-      <Project>{af4d59bb-d0ab-4db8-a874-ef3676a3c6fd}</Project>
-      <Name>CSharp</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Roslyn\Roslyn.csproj">
       <Project>{29978895-92f7-4d4e-b0d2-4aee9eac7bab}</Project>
       <Name>Roslyn</Name>

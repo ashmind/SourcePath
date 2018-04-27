@@ -1,24 +1,23 @@
 using System;
 using System.Collections.Generic;
-using SourcePath.CSharp;
 
 namespace SourcePath.Configuration {
-    public class SyntaxRuleConfigurationLoader {
-        private readonly SyntaxQueryParser _parser;
+    public class SourceRuleConfigurationLoader<TNode> {
+        private readonly ISourcePathParser<TNode> _parser;
 
-        public SyntaxRuleConfigurationLoader(SyntaxQueryParser parser) {
+        public SourceRuleConfigurationLoader(ISourcePathParser<TNode> parser) {
             _parser = parser;
         }
 
         public string DefaultFileName => ".sourcepathrc";
 
-        public SyntaxRuleConfiguration Load(string content) {
+        public SourceRuleConfiguration<TNode> Load(string content) {
             var lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            var rules = new List<SyntaxRule>();
+            var rules = new List<SourceRule<TNode>>();
 
             string ruleId = null;
-            SyntaxQuery ruleQuery = null;
-            SyntaxRuleSeverity? ruleSeverity = null;
+            ISourcePath<TNode> rulePath = null;
+            SourceRuleSeverity? ruleSeverity = null;
             string ruleMessage = null;
             foreach (var line in lines) {
                 if (Char.IsWhiteSpace(line[0])) {
@@ -26,27 +25,27 @@ namespace SourcePath.Configuration {
                     var trimmed = line.TrimStart();
                     if (ruleId == null)
                         continue; // TODO: error
-                    if (ruleQuery == null) {
-                        ruleQuery = _parser.Parse(trimmed);
+                    if (rulePath == null) {
+                        rulePath = _parser.Parse(trimmed);
                         continue;
                     }
                     // TODO: don't allocate
                     var parts = trimmed.Split(new[] { ':' }, 2);
-                    ruleSeverity = parts[0] == "error" ? SyntaxRuleSeverity.Error : SyntaxRuleSeverity.Warning;
+                    ruleSeverity = parts[0] == "error" ? SourceRuleSeverity.Error : SourceRuleSeverity.Warning;
                     ruleMessage = parts[1].Trim(); // TODO: don't allocate (if possible)
                 }
                 else {
-                    if (ruleId != null && ruleQuery != null)
-                        rules.Add(new SyntaxRule(ruleId, ruleQuery, ruleSeverity ?? SyntaxRuleSeverity.Error, ruleMessage));
+                    if (ruleId != null && rulePath != null)
+                        rules.Add(new SourceRule<TNode>(ruleId, rulePath, ruleSeverity ?? SourceRuleSeverity.Error, ruleMessage));
                     ruleId = line;
-                    ruleQuery = null;
+                    rulePath = null;
                     ruleSeverity = null;
                     ruleMessage = null;
                 }
             }
-            if (ruleId != null && ruleQuery != null)
-                rules.Add(new SyntaxRule(ruleId, ruleQuery, ruleSeverity ?? SyntaxRuleSeverity.Error, ruleMessage));
-            return new SyntaxRuleConfiguration(rules);
+            if (ruleId != null && rulePath != null)
+                rules.Add(new SourceRule<TNode>(ruleId, rulePath, ruleSeverity ?? SourceRuleSeverity.Error, ruleMessage));
+            return new SourceRuleConfiguration<TNode>(rules);
         }
     }
 }

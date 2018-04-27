@@ -1,11 +1,11 @@
-namespace SourcePath.CSharp {
-    public enum SyntaxPathAxis {
-        Default,
+namespace SourcePath {
+    public enum SourcePathAxis {
         Self,
         Child,
         Descendant,
         DescendantOrSelf,
         Parent,
-        Ancestor
+        Ancestor,
+        AncestorOrSelf,
     }
 }

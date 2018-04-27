@@ -13,6 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Configuration\Configuration.csproj" />
-    <ProjectReference Include="..\CSharp\CSharp.csproj" />
+    <ProjectReference Include="..\[Core]\[Core].csproj" />
   </ItemGroup>
 </Project>

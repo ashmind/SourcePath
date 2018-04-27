@@ -1,5 +1,5 @@
 namespace SourcePath.Configuration {
-    public enum SyntaxRuleSeverity {
+    public enum SourceRuleSeverity {
         Warning,
         Error
     }

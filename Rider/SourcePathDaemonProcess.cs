@@ -1,5 +1,6 @@
 using System;
 using JetBrains.ReSharper.Feature.Services.Daemon;
+using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using SourcePath.Configuration;
 
@@ -7,18 +8,15 @@ namespace SourcePath.Rider {
     internal class SourcePathDaemonProcess : IDaemonStageProcess {
         private IDaemonProcess _process;
         private readonly ICSharpFile _file;
-        private readonly RiderCSharpSyntaxQueryExecutor _queryExecutor;
-        private readonly SyntaxRuleConfiguration _configuration;
+        private readonly SourceRuleConfiguration<ITreeNode> _configuration;
 
         public SourcePathDaemonProcess(
             IDaemonProcess process,
             ICSharpFile file,
-            SyntaxRuleConfiguration configuration,
-            RiderCSharpSyntaxQueryExecutor queryExecutor
+            SourceRuleConfiguration<ITreeNode> configuration
         ) {
             _process = process;
             _file = file;
-            _queryExecutor = queryExecutor;
             _configuration = configuration;
         }
 
