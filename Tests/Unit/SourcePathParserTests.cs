@@ -48,6 +48,13 @@ namespace SourcePath.Tests.Unit {
         }
 
         [Theory]
+        [InlineData("class[name[.StartsWith('c')]]")]
+        public void Parse_Filter_Call(string pathAsString) {
+            var path = NewParser().Parse(pathAsString);
+            Assert.Equal(pathAsString, path.ToPathString());
+        }
+
+        [Theory]
         [InlineData("if/if")]
         [InlineData("if/if/if")]
         [InlineData("self::if/parent::if/self::if")]
@@ -59,7 +66,7 @@ namespace SourcePath.Tests.Unit {
         private SourcePathParser<_> NewParser() {
             return new SourcePathParser<_>(
                 MockDialect(),
-                Mock.Of<ISourcePathAxisNavigator<_>>()
+                Mock.Of<ISourceNodeHandler<_>>()
             );
         }
 

@@ -32,11 +32,5 @@ namespace SourcePath {
             }
             Right.AppendToPathString(builder);
         }
-
-        public string ToPathString() {
-            var builder = new StringBuilder();
-            AppendToPathString(builder);
-            return builder.ToString();
-        }
     }
 }

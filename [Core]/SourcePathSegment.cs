@@ -1,23 +1,22 @@
-using System;
 using System.Text;
 
 namespace SourcePath {
     public class SourcePathSegment<TNode> {
-        private readonly ISourcePathAxisNavigator<TNode> _navigator;
+        private readonly ISourceNodeHandler<TNode> _nodeHandler;
 
         public SourcePathSegment(
             SourcePathAxis? axis,
             ISourceNodeKind<TNode> kind,
             ISourcePath<TNode> filter,
-            ISourcePathAxisNavigator<TNode> navigator
+            ISourceNodeHandler<TNode> nodeHandler
         ) {
             Argument.NotNull(nameof(kind), kind);
-            Argument.NotNull(nameof(navigator), navigator);
+            Argument.NotNull(nameof(nodeHandler), nodeHandler);
 
             Axis = axis;
             Kind = kind;
             Filter = filter;
-            _navigator = navigator;
+            _nodeHandler = nodeHandler;
         }
 
         public SourcePathAxis? Axis { get; }
@@ -29,7 +28,7 @@ namespace SourcePath {
             if (axis == SourcePathAxis.Self)
                 return MatchesIgnoringAxis(node);
 
-            foreach (var other in _navigator.Navigate(node, axis)) {
+            foreach (var other in _nodeHandler.Navigate(node, axis)) {
                 if (MatchesIgnoringAxis(other))
                     return true;
             }

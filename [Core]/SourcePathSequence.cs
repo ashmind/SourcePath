@@ -22,12 +22,6 @@ namespace SourcePath {
             yield return Segments[0].Kind;
         }
 
-        public override string ToString() {
-            var builder = new StringBuilder();
-            AppendToPathString(builder);
-            return builder.ToString();
-        }
-
         public void AppendToPathString(StringBuilder builder) {
             Argument.NotNull(nameof(builder), builder);
             var first = true;
@@ -39,10 +33,6 @@ namespace SourcePath {
             }
         }
 
-        public string ToPathString() {
-            var builder = new StringBuilder();
-            AppendToPathString(builder);
-            return builder.ToString();
-        }
+        public override string ToString() => this.ToPathString();
     }
 }

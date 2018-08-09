@@ -11,10 +11,14 @@ namespace SourcePath {
     public class SourcePathParser<TNode> : ISourcePathParser<TNode> {
         private readonly Parser<char, ISourcePath<TNode>> _root;
         private readonly ISourcePathDialect<TNode> _dialect;
-        private readonly ISourcePathAxisNavigator<TNode> _navigator;
+        private readonly ISourceNodeHandler<TNode> _nodeHandler;
 
-        public SourcePathParser(ISourcePathDialect<TNode> dialect, ISourcePathAxisNavigator<TNode> navigator) {
-            _navigator = navigator;
+        public SourcePathParser(
+            ISourcePathDialect<TNode> dialect,
+            ISourceNodeHandler<TNode> nodeHandler
+        ) {
+            _dialect = dialect;
+            _nodeHandler = nodeHandler;
 
             var axis = OneOf(
                 Try(String("self::").Select(_ => AxisIfSupported(Self))),
@@ -23,13 +27,32 @@ namespace SourcePath {
                 Try(String("ancestor::").Select(_ => AxisIfSupported(Ancestor))),
                 Try(String("parent::").Select(_ => AxisIfSupported(Parent)))
             );
-            var kind = Token(c => char.IsLetter(c) || c == '*')
+            var kind = Token(c => char.IsLetter(c) || c == '*'  || c == '_' || c == ':')
                 .Labelled("kind")
                 .AtLeastOnceString()
                 .Select(ParseNodeKind);
 
+            var quotedString = OneOf(
+                Token(c => c != '\'').ManyString().Between(Char('\'')),
+                Token(c => c != '"').ManyString().Between(Char('"'))
+            ).Labelled("string constant").Select(s => new SourcePathConstant<TNode>(s, _nodeHandler));
+            var constant = quotedString;
+            var functionName = Token(char.IsLetter)
+                .Labelled("function name")
+                .AtLeastOnceString();
+            var callArguments = constant.Select(l => new[] { l });
+            var callSuffix = Char('.').Then(Map(
+                (name, arguments) => (name, arguments),
+                functionName,
+                callArguments.Between(Char('('), Char(')'))
+            ));
             Parser<char, SourcePathSequence<TNode>> path = null;
-            var booleanExpressionLeaf = Rec(() => path).Cast<ISourcePath<TNode>>();
+            var callOrPath = OneOf(
+                Try(callSuffix.Select(c => new SourcePathFunctionCall<TNode>(c.name, c.arguments, _nodeHandler)))
+                    .Cast<ISourcePath<TNode>>(),
+                Rec(() => path).Cast<ISourcePath<TNode>>()
+            );
+            var booleanExpressionLeaf = callOrPath;
             var booleanExpression = ExpressionParser.Build(
                 booleanExpressionLeaf,
                 new[] {
@@ -48,7 +71,7 @@ namespace SourcePath {
                     a.HasValue ? a.Value : (SourcePathAxis?)null,
                     k,
                     f.GetValueOrDefault(),
-                    _navigator
+                    _nodeHandler
                 ),
                 axis.Optional(),
                 kind,
@@ -59,7 +82,6 @@ namespace SourcePath {
                 .Select(s => new SourcePathSequence<TNode>(s.ToList()));
 
             _root = expression.Before(End());
-            _dialect = dialect;
         }
 
         private SourcePathAxis AxisIfSupported(SourcePathAxis axis) {

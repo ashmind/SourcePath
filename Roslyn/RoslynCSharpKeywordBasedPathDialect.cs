@@ -7,7 +7,7 @@ namespace SourcePath.Roslyn {
     using static SyntaxKind;
     using Argument = global::Argument;
 
-    public class RoslynCSharpKeywordBasedPathDialect : ISourcePathDialect<SyntaxNodeOrToken> {
+    public class RoslynCSharpKeywordBasedPathDialect : ISourcePathDialect<RoslynNodeContext> {
         private static IReadOnlyDictionary<string, RoslynCSharpNodeKind> Keywords { get; } = new[] {
             // Language
             Keyword("abstract", AbstractKeyword),
@@ -175,7 +175,7 @@ namespace SourcePath.Roslyn {
 
         public SourcePathDialectSupports Supports { get; private set; }
 
-        public ISourceNodeKind<SyntaxNodeOrToken> ResolveNodeKind(string nodeKindString) {
+        public ISourceNodeKind<RoslynNodeContext> ResolveNodeKind(string nodeKindString) {
             Argument.NotNullOrEmpty(nameof(nodeKindString), nodeKindString);
             if (!Keywords.TryGetValue(nodeKindString, out var nodeKind))
                 return null;

@@ -17,25 +17,25 @@ namespace SourcePath.Analyzers {
         private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics =
             _descriptors.Values.ToImmutableArray();
 
-        private readonly SourceRuleConfigurationLoader<SyntaxNodeOrToken> _configurationLoader;
+        private readonly SourceRuleConfigurationLoader<RoslynNodeContext> _configurationLoader;
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
 
         public SourcePathAnalyzer() : this(
-            new SourceRuleConfigurationLoader<SyntaxNodeOrToken>(
-                new SourcePathParser<SyntaxNodeOrToken>(
+            new SourceRuleConfigurationLoader<RoslynNodeContext>(
+                new SourcePathParser<RoslynNodeContext>(
                     new RoslynCSharpKeywordBasedPathDialect(new SourcePathDialectSupports {
                         TopLevelAxis = false,
                         TopLevelSegments = false,
                         TopLevelAnd = false
                     }),
-                    new RoslynAxisNavigator()
+                    new RoslynNodeHandler()
                 )
             )
         ) {
         }
 
-        public SourcePathAnalyzer(SourceRuleConfigurationLoader<SyntaxNodeOrToken> configurationLoader) {
+        public SourcePathAnalyzer(SourceRuleConfigurationLoader<RoslynNodeContext> configurationLoader) {
             _configurationLoader = configurationLoader;
         }
 
@@ -57,7 +57,7 @@ namespace SourcePath.Analyzers {
             }
         }
 
-        private IEnumerable<SyntaxKind> GetSyntaxKinds(ISourcePath<SyntaxNodeOrToken> path) {
+        private IEnumerable<SyntaxKind> GetSyntaxKinds(ISourcePath<RoslynNodeContext> path) {
             foreach (var nodeKind in GetRootNodeKinds(path)) {
                 foreach (var syntaxKind in nodeKind.SyntaxKinds) {
                     yield return syntaxKind;
@@ -65,13 +65,13 @@ namespace SourcePath.Analyzers {
             }
         }
 
-        private IEnumerable<RoslynCSharpNodeKind> GetRootNodeKinds(ISourcePath<SyntaxNodeOrToken> path) {
+        private IEnumerable<RoslynCSharpNodeKind> GetRootNodeKinds(ISourcePath<RoslynNodeContext> path) {
             switch (path) {
-                case SourcePathSequence<SyntaxNodeOrToken> sequence:
+                case SourcePathSequence<RoslynNodeContext> sequence:
                     yield return (RoslynCSharpNodeKind)sequence.Segments[0].Kind;
                     yield break;
 
-                case SourcePathBinaryExpression<SyntaxNodeOrToken> binary:
+                case SourcePathBinaryExpression<RoslynNodeContext> binary:
                     foreach (var kind in GetRootNodeKinds(binary.Left)) yield return kind;
                     foreach (var kind in GetRootNodeKinds(binary.Right)) yield return kind;
                     yield break;
@@ -81,7 +81,7 @@ namespace SourcePath.Analyzers {
             }
         }
 
-        private SourceRuleConfiguration<SyntaxNodeOrToken> GetConfiguration(AnalyzerOptions options) {
+        private SourceRuleConfiguration<RoslynNodeContext> GetConfiguration(AnalyzerOptions options) {
             foreach (var file in options.AdditionalFiles) {
                 if (file.Path.EndsWith(_configurationLoader.DefaultFileName))
                     return _configurationLoader.Load(file.GetText().ToString());
@@ -89,8 +89,9 @@ namespace SourcePath.Analyzers {
             return null;
         }
 
-        private void ProcessSyntaxNode(SyntaxNodeAnalysisContext context, SourceRule<SyntaxNodeOrToken> rule) {
-            if (!rule.Path.Matches(context.Node, defaultAxis: SourcePathAxis.Self))
+        private void ProcessSyntaxNode(SyntaxNodeAnalysisContext context, SourceRule<RoslynNodeContext> rule) {
+            var convertedContext = new RoslynNodeContext(context.Node, context.SemanticModel);
+            if (!rule.Path.Matches(convertedContext, defaultAxis: SourcePathAxis.Self))
                 return;
 
             var diagnostic = Diagnostic.Create(
