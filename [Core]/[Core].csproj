@@ -3,8 +3,6 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>SourcePath</RootNamespace>
     <AssemblyName>SourcePath</AssemblyName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <Import Project="../VsixVersioning.props" />
