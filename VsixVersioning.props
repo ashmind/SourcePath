@@ -3,7 +3,7 @@
     <Vsix>true</Vsix>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Vsix)' != 'true'">
-    <CodeAnalysisVersion>2.6.1</CodeAnalysisVersion>
+    <CodeAnalysisVersion>2.9.0</CodeAnalysisVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Vsix)' == 'true'">
     <CodeAnalysisVersion>1.2.2</CodeAnalysisVersion>
