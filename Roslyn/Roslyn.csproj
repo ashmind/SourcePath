@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>SourcePath.Roslyn</AssemblyName>
     <RootNamespace>SourcePath.Roslyn</RootNamespace>
@@ -17,7 +17,7 @@
   <Import Project="../VsixVersioning.props" />
   <ItemGroup>
     <PackageReference Include="Argument" Version="1.1.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.3.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\[Core]\[Core].csproj" />
